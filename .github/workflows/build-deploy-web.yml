@@ -36,7 +36,6 @@ jobs:
           tenant: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
           registry: ${{ vars.ACR_NAME }}
           repository: todomanagement-web
-          image: todomanagement-web
           tag: latest
           dockerfile: Dockerfile
           folder: src/web
