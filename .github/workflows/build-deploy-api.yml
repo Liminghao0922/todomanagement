@@ -49,3 +49,18 @@ jobs:
             POSTGRES_USER=${{ vars.POSTGRES_USER }}
             DATABASE_TYPE=postgresql
             ENVIRONMENT=production
+
+      - name: Configure Container App identity for ACR access
+        run: |
+          echo "Assigning User Assigned Identity to Container App..."
+          az containerapp identity assign \
+            --resource-group ${{ vars.RESOURCE_GROUP }} \
+            --name todomanagement-api \
+            --user-assigned ${{ vars.USER_ASSIGNED_IDENTITY_ID }}
+          
+          echo "Configuring registry access with UAI..."
+          az containerapp registry set \
+            --resource-group ${{ vars.RESOURCE_GROUP }} \
+            --name todomanagement-api \
+            --server ${{ vars.ACR_NAME }}.azurecr.io \
+            --identity ${{ vars.USER_ASSIGNED_IDENTITY_ID }}
