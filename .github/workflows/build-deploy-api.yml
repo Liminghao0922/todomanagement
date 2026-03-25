@@ -31,3 +31,13 @@ jobs:
           acrName: ${{ vars.ACR_NAME }}
           containerAppName: todomanagement-api
           resourceGroup: ${{ vars.RESOURCE_GROUP }}
+          containerAppEnvironment: cae-todomanagement-dev
+          runtimeStack: python:3.11
+          targetPort: 8000
+          environmentVariables: |
+            POSTGRES_SERVER=${{ vars.POSTGRES_SERVER }}
+            POSTGRES_DB=${{ vars.POSTGRES_DB }}
+            POSTGRES_USER=${{ vars.POSTGRES_USER }}
+            DATABASE_TYPE=postgresql
+            ENVIRONMENT=production
+          userManagedIdentity: ${{ vars.USER_ASSIGNED_IDENTITY_ID }}
