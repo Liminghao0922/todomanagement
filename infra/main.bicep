@@ -328,7 +328,7 @@ resource containerAppApi 'Microsoft.App/containerApps@2024-03-01' = {
           image: 'nginx:latest'
           name: '${projectName}-api'
           resources: {
-            cpu: 0.5
+            cpu: '0.5'
             memory: '1.0Gi'
           }
           env: [
@@ -400,7 +400,7 @@ resource containerAppWeb 'Microsoft.App/containerApps@2024-03-01' = {
           image: 'nginx:latest'
           name: '${projectName}-web'
           resources: {
-            cpu: 0.25
+            cpu: '0.25'
             memory: '0.5Gi'
           }
           env: [
