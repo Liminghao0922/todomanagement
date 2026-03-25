@@ -1,0 +1,26 @@
+info:
+  name: Create Todo
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://localhost:7071/api/todos
+  body:
+    type: json
+    data: |-
+      {
+        "title": "test",
+        "description": "test",
+        "priority": "medium",
+        "status": "pending",
+        "tags": [],
+        "userId": "c19ff0dd-899d-462c-bf33-90574afa78b5"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

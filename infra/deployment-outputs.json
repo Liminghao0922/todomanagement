@@ -1,0 +1,16 @@
+﻿{
+    "databaseName":  null,
+    "postgresSubnetId":  null,
+    "vnetId":  null,
+    "containerAppSubnetId":  null,
+    "postgresqlServerId":  null,
+    "containerAppEnvironmentName":  null,
+    "location":  "japaneast",
+    "containerRegistryLoginServer":  null,
+    "environment":  "dev",
+    "containerRegistryName":  null,
+    "postgresqlServerName":  null,
+    "resourceGroupName":  "rg-todomanagement-dev",
+    "postgresqlHostname":  null,
+    "containerAppEnvironmentId":  null
+}

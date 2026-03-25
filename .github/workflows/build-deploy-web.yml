@@ -1,0 +1,33 @@
+name: Build and Deploy Web to ACR
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/web/**'
+      - '.github/workflows/build-deploy-web.yml'
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Build and deploy Container App
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          appSourcePath: ${{ github.workspace }}/src/web
+          acrName: ${{ vars.ACR_NAME }}
+          containerAppName: todomanagement-web
+          resourceGroup: ${{ vars.RESOURCE_GROUP }}

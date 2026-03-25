@@ -1,0 +1,33 @@
+name: Build and Deploy API to ACR
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/api/**'
+      - '.github/workflows/build-deploy-api.yml'
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Build and deploy Container App
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          appSourcePath: ${{ github.workspace }}/src/api
+          acrName: ${{ vars.ACR_NAME }}
+          containerAppName: todomanagement-api
+          resourceGroup: ${{ vars.RESOURCE_GROUP }}
