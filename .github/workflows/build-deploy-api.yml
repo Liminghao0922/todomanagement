@@ -24,34 +24,28 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Build and deploy Container App
-        uses: azure/container-apps-deploy-action@v1
+      - name: Build and push image to ACR
+        uses: Azure/acr-build@v1
         with:
-          appSourcePath: ${{ github.workspace }}/src/api
-          acrName: ${{ vars.ACR_NAME }}
-          containerAppName: todomanagement-api
-          resourceGroup: ${{ vars.RESOURCE_GROUP }}
-          containerAppEnvironment: cae-todomanagement-dev
-          runtimeStack: python:3.11
-          targetPort: 8000
-          environmentVariables: |
-            POSTGRES_SERVER=${{ vars.POSTGRES_SERVER }}
-            POSTGRES_DB=${{ vars.POSTGRES_DB }}
-            POSTGRES_USER=${{ vars.POSTGRES_USER }}
-            DATABASE_TYPE=postgresql
-            ENVIRONMENT=production
+          registryUrl: ${{ vars.ACR_NAME }}.azurecr.io
+          imageName: todomanagement-api
+          dockerfile: src/api/Dockerfile
+          branch: main
 
-      - name: Assign User Assigned Identity
+      - name: Deploy to Container App
         run: |
-          az containerapp identity assign \
-            --resource-group ${{ vars.RESOURCE_GROUP }} \
+          az containerapp up \
             --name todomanagement-api \
-            --user-assigned ${{ vars.USER_ASSIGNED_IDENTITY_ID }}
-
-      - name: Configure ACR access with User Assigned Identity
-        run: |
-          az containerapp registry set \
             --resource-group ${{ vars.RESOURCE_GROUP }} \
-            --name todomanagement-api \
-            --server ${{ vars.ACR_NAME }}.azurecr.io \
-            --identity ${{ vars.USER_ASSIGNED_IDENTITY_ID }}
+            --environment cae-todomanagement-dev \
+            --image ${{ vars.ACR_NAME }}.azurecr.io/todomanagement-api:latest \
+            --target-port 8000 \
+            --ingress external \
+            --user-assigned-identity ${{ vars.USER_ASSIGNED_IDENTITY_ID }} \
+            --registry-server ${{ vars.ACR_NAME }}.azurecr.io \
+            --registry-identity ${{ vars.USER_ASSIGNED_IDENTITY_ID }} \
+            --env-vars POSTGRES_SERVER="${{ vars.POSTGRES_SERVER }}" \
+                        POSTGRES_DB="${{ vars.POSTGRES_DB }}" \
+                        POSTGRES_USER="${{ vars.POSTGRES_USER }}" \
+                        DATABASE_TYPE="postgresql" \
+                        ENVIRONMENT="production"
