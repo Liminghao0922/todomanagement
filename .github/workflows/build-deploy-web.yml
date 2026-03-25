@@ -25,13 +25,12 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Build and push image to ACR
-        uses: Azure/acr-build@v1
-        with:
-          registry: ${{ vars.ACR_NAME }}
-          repository: todomanagement-web
-          tag: latest
-          dockerfile: src/web/Dockerfile
-          branch: main
+        run: |
+          az acr build \
+            --registry ${{ vars.ACR_NAME }} \
+            --image todomanagement-web:latest \
+            --file src/web/Dockerfile \
+            src/web
 
       - name: Deploy to Container App
         run: |
