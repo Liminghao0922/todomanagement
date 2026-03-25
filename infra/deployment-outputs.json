@@ -1,16 +1,16 @@
 ﻿{
-    "databaseName":  null,
-    "postgresSubnetId":  null,
-    "vnetId":  null,
-    "containerAppSubnetId":  null,
-    "postgresqlServerId":  null,
-    "containerAppEnvironmentName":  null,
+    "databaseName":  "tododb",
+    "postgresSubnetId":  "/subscriptions/a5095cf8-c1ec-4a7e-9ee7-22103870844b/resourceGroups/rg-todomanagement-dev/providers/Microsoft.Network/virtualNetworks/vnet-todomanagement-dev/subnets/subnet-postgres-dev",
+    "vnetId":  "/subscriptions/a5095cf8-c1ec-4a7e-9ee7-22103870844b/resourceGroups/rg-todomanagement-dev/providers/Microsoft.Network/virtualNetworks/vnet-todomanagement-dev",
+    "containerAppSubnetId":  "/subscriptions/a5095cf8-c1ec-4a7e-9ee7-22103870844b/resourceGroups/rg-todomanagement-dev/providers/Microsoft.Network/virtualNetworks/vnet-todomanagement-dev/subnets/subnet-ca-dev",
+    "postgresqlServerId":  "/subscriptions/a5095cf8-c1ec-4a7e-9ee7-22103870844b/resourceGroups/rg-todomanagement-dev/providers/Microsoft.DBforPostgreSQL/flexibleServers/postgres-todomanagement-vkql5e2kbh2na",
+    "containerAppEnvironmentName":  "cae-todomanagement-dev",
     "location":  "japaneast",
-    "containerRegistryLoginServer":  null,
+    "containerRegistryLoginServer":  "acrtodomanagementvkql5e2kbh2na.azurecr.io",
     "environment":  "dev",
-    "containerRegistryName":  null,
-    "postgresqlServerName":  null,
+    "containerRegistryName":  "acrtodomanagementvkql5e2kbh2na",
+    "postgresqlServerName":  "postgres-todomanagement-vkql5e2kbh2na",
     "resourceGroupName":  "rg-todomanagement-dev",
-    "postgresqlHostname":  null,
-    "containerAppEnvironmentId":  null
+    "postgresqlHostname":  "postgres-todomanagement-vkql5e2kbh2na.postgres.database.azure.com",
+    "containerAppEnvironmentId":  "/subscriptions/a5095cf8-c1ec-4a7e-9ee7-22103870844b/resourceGroups/rg-todomanagement-dev/providers/Microsoft.App/managedEnvironments/cae-todomanagement-dev"
 }
