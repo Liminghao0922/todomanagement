@@ -51,7 +51,8 @@ jobs:
             --image ${{ vars.ACR_NAME }}.azurecr.io/todomanagement-web:latest \
             --target-port 5173 \
             --ingress external \
-            --env-vars VITE_API_BASE_URL="${{ vars.API_BASE_URL }}" \
+            --env-vars USER_ASSIGNED_IDENTITY_CLIENT_ID="${{ vars.USER_ASSIGNED_IDENTITY_CLIENT_ID }}" \
+                        VITE_API_BASE_URL="${{ vars.API_BASE_URL }}"
                         VITE_AZURE_CLIENT_ID="${{ vars.AZURE_CLIENT_ID }}" \
                         VITE_AZURE_AUTHORITY="https://login.microsoftonline.com/${{ vars.AZURE_TENANT_ID }}" \
                         VITE_AZURE_REDIRECT_URI="${{ vars.AZURE_REDIRECT_URI }}"

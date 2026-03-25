@@ -51,7 +51,8 @@ jobs:
             --image ${{ vars.ACR_NAME }}.azurecr.io/todomanagement-api:latest \
             --target-port 8000 \
             --ingress external \
-            --env-vars POSTGRES_SERVER="${{ vars.POSTGRES_SERVER }}" \
+            --env-vars USER_ASSIGNED_IDENTITY_CLIENT_ID="${{ vars.USER_ASSIGNED_IDENTITY_CLIENT_ID }}" \
+                        POSTGRES_SERVER="${{ vars.POSTGRES_SERVER }}"
                         POSTGRES_DB="${{ vars.POSTGRES_DB }}" \
                         POSTGRES_USER="${{ vars.POSTGRES_USER }}" \
                         DATABASE_TYPE="postgresql" \
