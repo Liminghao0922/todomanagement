@@ -27,10 +27,15 @@ jobs:
       - name: Build and push image to ACR
         uses: Azure/acr-build@v1
         with:
+          service_principal: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
+          service_principal_password: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
+          tenant: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
           registry: ${{ vars.ACR_NAME }}
           repository: todomanagement-api
+          image: todomanagement-api
           tag: latest
           dockerfile: src/api/Dockerfile
+          folder: src/api
           branch: main
 
       - name: Deploy to Container App
