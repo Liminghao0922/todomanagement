@@ -189,3 +189,8 @@ class ErrorResponse(BaseModel):
     status: int
     message: str
     error: str
+
+
+# Rebuild models that have forward references to ensure all types are resolved
+ProjectWithTodos.model_rebuild()
+TodoListResponse.model_rebuild()
