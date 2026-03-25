@@ -24,11 +24,20 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: Get ACR credentials
+        run: |
+          ACR_USERNAME=$(az acr credential show --name ${{ vars.ACR_NAME }} --query username -o tsv)
+          ACR_PASSWORD=$(az acr credential show --name ${{ vars.ACR_NAME }} --query "passwords[0].value" -o tsv)
+          echo "REGISTRY_USERNAME=$ACR_USERNAME" >> $GITHUB_ENV
+          echo "REGISTRY_PASSWORD=$ACR_PASSWORD" >> $GITHUB_ENV
+
       - name: Build and deploy Container App
         uses: azure/container-apps-deploy-action@v1
         with:
           appSourcePath: ${{ github.workspace }}/src/api
           acrName: ${{ vars.ACR_NAME }}
+          acrUsername: ${{ env.REGISTRY_USERNAME }}
+          acrPassword: ${{ env.REGISTRY_PASSWORD }}
           containerAppName: todomanagement-api
           resourceGroup: ${{ vars.RESOURCE_GROUP }}
           containerAppEnvironment: cae-todomanagement-dev
@@ -40,4 +49,3 @@ jobs:
             POSTGRES_USER=${{ vars.POSTGRES_USER }}
             DATABASE_TYPE=postgresql
             ENVIRONMENT=production
-          userManagedIdentity: ${{ vars.USER_ASSIGNED_IDENTITY_ID }}
