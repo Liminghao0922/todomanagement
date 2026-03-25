@@ -27,8 +27,9 @@ jobs:
       - name: Build and push image to ACR
         uses: Azure/acr-build@v1
         with:
-          registryUrl: ${{ vars.ACR_NAME }}.azurecr.io
-          imageName: todomanagement-web
+          registry: ${{ vars.ACR_NAME }}
+          repository: todomanagement-web
+          tag: latest
           dockerfile: src/web/Dockerfile
           branch: main
 
