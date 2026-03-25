@@ -296,6 +296,146 @@ resource containerAppEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' 
   }
 }
 
+// Create Container App for API (with placeholder image)
+resource containerAppApi 'Microsoft.App/containerApps@2024-03-01' = {
+  name: '${projectName}-api'
+  location: location
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${userAssignedIdentity.id}': {}
+    }
+  }
+  properties: {
+    managedEnvironmentId: containerAppEnvironment.id
+    configuration: {
+      ingress: {
+        external: true
+        targetPort: 8000
+        transport: 'auto'
+        allowInsecure: false
+      }
+      registries: [
+        {
+          server: containerRegistry.properties.loginServer
+          identity: userAssignedIdentity.id
+        }
+      ]
+    }
+    template: {
+      containers: [
+        {
+          image: 'nginx:latest'
+          name: '${projectName}-api'
+          resources: {
+            cpu: 0.5
+            memory: '1.0Gi'
+          }
+          env: [
+            {
+              name: 'POSTGRES_SERVER'
+              value: postgresqlServer.properties.fullyQualifiedDomainName
+            }
+            {
+              name: 'POSTGRES_DB'
+              value: databaseName
+            }
+            {
+              name: 'POSTGRES_USER'
+              value: postgresqlAdminUsername
+            }
+            {
+              name: 'DATABASE_TYPE'
+              value: 'postgresql'
+            }
+            {
+              name: 'ENVIRONMENT'
+              value: environment
+            }
+            {
+              name: 'AZURE_CLIENT_ID'
+              value: userAssignedIdentity.properties.clientId
+            }
+          ]
+        }
+      ]
+      scale: {
+        minReplicas: 1
+        maxReplicas: 3
+      }
+    }
+  }
+  dependsOn: []
+}
+
+// Create Container App for Web (with placeholder image)
+resource containerAppWeb 'Microsoft.App/containerApps@2024-03-01' = {
+  name: '${projectName}-web'
+  location: location
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${userAssignedIdentity.id}': {}
+    }
+  }
+  properties: {
+    managedEnvironmentId: containerAppEnvironment.id
+    configuration: {
+      ingress: {
+        external: true
+        targetPort: 5173
+        transport: 'auto'
+        allowInsecure: false
+      }
+      registries: [
+        {
+          server: containerRegistry.properties.loginServer
+          identity: userAssignedIdentity.id
+        }
+      ]
+    }
+    template: {
+      containers: [
+        {
+          image: 'nginx:latest'
+          name: '${projectName}-web'
+          resources: {
+            cpu: 0.25
+            memory: '0.5Gi'
+          }
+          env: [
+            {
+              name: 'VITE_API_BASE_URL'
+              value: ''
+            }
+            {
+              name: 'VITE_AZURE_CLIENT_ID'
+              value: ''
+            }
+            {
+              name: 'VITE_AZURE_TENANT_ID'
+              value: ''
+            }
+            {
+              name: 'VITE_AZURE_REDIRECT_URI'
+              value: ''
+            }
+            {
+              name: 'ENVIRONMENT'
+              value: environment
+            }
+          ]
+        }
+      ]
+      scale: {
+        minReplicas: 1
+        maxReplicas: 2
+      }
+    }
+  }
+  dependsOn: []
+}
+
 // Output important values
 output vnetId string = vnet.id
 output postgresqlServerId string = postgresqlServer.id
@@ -315,3 +455,9 @@ output userAssignedIdentityClientId string = userAssignedIdentity.properties.cli
 output userAssignedIdentityPrincipalId string = userAssignedIdentity.properties.principalId
 output acrPrivateEndpointId string = acrPrivateEndpoint.id
 output acrPrivateDnsZoneId string = acrPrivateDnsZone.id
+output containerAppApiId string = containerAppApi.id
+output containerAppApiName string = containerAppApi.name
+output containerAppApiUrl string = 'https://${containerAppApi.properties.configuration.ingress.fqdn}'
+output containerAppWebId string = containerAppWeb.id
+output containerAppWebName string = containerAppWeb.name
+output containerAppWebUrl string = 'https://${containerAppWeb.properties.configuration.ingress.fqdn}'
