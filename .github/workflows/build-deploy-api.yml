@@ -34,7 +34,6 @@ jobs:
           containerAppEnvironment: cae-todomanagement-dev
           runtimeStack: python:3.11
           targetPort: 8000
-          userManagedIdentity: ${{ vars.USER_ASSIGNED_IDENTITY_ID }}
           environmentVariables: |
             POSTGRES_SERVER=${{ vars.POSTGRES_SERVER }}
             POSTGRES_DB=${{ vars.POSTGRES_DB }}
