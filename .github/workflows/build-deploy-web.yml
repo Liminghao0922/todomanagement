@@ -34,7 +34,7 @@ jobs:
           repository: todomanagement-web
           image: todomanagement-web
           tag: latest
-          dockerfile: src/web/Dockerfile
+          dockerfile: Dockerfile
           folder: src/web
           branch: main
 

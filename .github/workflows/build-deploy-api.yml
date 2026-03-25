@@ -34,7 +34,7 @@ jobs:
           repository: todomanagement-api
           image: todomanagement-api
           tag: latest
-          dockerfile: src/api/Dockerfile
+          dockerfile: Dockerfile
           folder: src/api
           branch: main
 
