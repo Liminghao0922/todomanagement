@@ -40,3 +40,18 @@ jobs:
             POSTGRES_USER=${{ vars.POSTGRES_USER }}
             DATABASE_TYPE=postgresql
             ENVIRONMENT=production
+
+      - name: Assign User Assigned Identity
+        run: |
+          az containerapp identity assign \
+            --resource-group ${{ vars.RESOURCE_GROUP }} \
+            --name todomanagement-api \
+            --user-assigned ${{ vars.USER_ASSIGNED_IDENTITY_ID }}
+
+      - name: Configure ACR access with User Assigned Identity
+        run: |
+          az containerapp registry set \
+            --resource-group ${{ vars.RESOURCE_GROUP }} \
+            --name todomanagement-api \
+            --server ${{ vars.ACR_NAME }}.azurecr.io \
+            --identity ${{ vars.USER_ASSIGNED_IDENTITY_ID }}
