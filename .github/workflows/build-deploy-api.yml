@@ -36,7 +36,6 @@ jobs:
           tenant: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
           registry: ${{ vars.ACR_NAME }}
           repository: todomanagement-api
-          image: ${{ vars.ACR_NAME }}.azurecr.io/todomanagement-api
           tag: latest
           dockerfile: Dockerfile
           folder: src/api
