@@ -24,6 +24,10 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: Install ContainerApp Extension
+        run: |
+          az extension add --name containerapp --upgrade
+
       - name: Build and push image to ACR
         uses: Azure/acr-build@v1
         with:
@@ -47,9 +51,6 @@ jobs:
             --image ${{ vars.ACR_NAME }}.azurecr.io/todomanagement-api:latest \
             --target-port 8000 \
             --ingress external \
-            --user-assigned-identity ${{ vars.USER_ASSIGNED_IDENTITY_ID }} \
-            --registry-server ${{ vars.ACR_NAME }}.azurecr.io \
-            --registry-identity ${{ vars.USER_ASSIGNED_IDENTITY_ID }} \
             --env-vars POSTGRES_SERVER="${{ vars.POSTGRES_SERVER }}" \
                         POSTGRES_DB="${{ vars.POSTGRES_DB }}" \
                         POSTGRES_USER="${{ vars.POSTGRES_USER }}" \
