@@ -14,8 +14,18 @@ COPY index.html vite.config.ts tsconfig.json tsconfig.node.json ./
 COPY src ./src
 COPY public ./public
 
-# Build Vue app
-RUN npm run build
+# Build parameters for Vite
+ARG VITE_AZURE_CLIENT_ID
+ARG VITE_AZURE_AUTHORITY
+ARG VITE_AZURE_REDIRECT_URI
+ARG VITE_API_BASE_URL
+
+# Build Vue app with environment variables
+RUN VITE_AZURE_CLIENT_ID=${VITE_AZURE_CLIENT_ID} \
+    VITE_AZURE_AUTHORITY=${VITE_AZURE_AUTHORITY} \
+    VITE_AZURE_REDIRECT_URI=${VITE_AZURE_REDIRECT_URI} \
+    VITE_API_BASE_URL=${VITE_API_BASE_URL} \
+    npm run build
 
 # Runtime stage - Use lightweight HTTP server
 FROM node:20-alpine

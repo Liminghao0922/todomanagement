@@ -14,6 +14,11 @@ Repository Variables位置：**Settings** → **Secrets and variables** → **Va
 |---|---|---|
 | `ACR_NAME` | `acrtodomanagementvkql5e2kbh2na` | Azure Container Registry的短名称 |
 | `RESOURCE_GROUP` | `rg-todomanagement-dev` | 部署目标的Azure资源组 |
+| `AZURE_CLIENT_ID` | (Azure Entra ID应用ID) | Web应用的Azure Entra ID应用客户端ID |
+| `AZURE_TENANT_ID` | (你的Azure租户ID) | Azure租户ID |
+| `AZURE_REDIRECT_URI` | `https://your-domain.com` | OAuth重定向URI（部署后的web应用URL） |
+| `API_BASE_URL` | `https://api.your-domain.com` | API服务的基础URL |
+| `USER_ASSIGNED_IDENTITY_CLIENT_ID` | (用户分配的托管标识Client ID) | Container App使用的用户分配托管标识ID |
 
 ### 设置步骤
 
