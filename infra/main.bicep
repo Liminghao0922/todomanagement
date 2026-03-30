@@ -296,7 +296,11 @@ resource containerAppEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' 
   }
 }
 
-// Create Container App for API (with placeholder image)
+// ============================================================================
+// CONTAINER APPS SECTION
+// ============================================================================
+
+// Create Container App for API
 resource containerAppApi 'Microsoft.App/containerApps@2024-03-01' = {
   name: '${projectName}-api'
   location: location
@@ -333,16 +337,16 @@ resource containerAppApi 'Microsoft.App/containerApps@2024-03-01' = {
           }
           env: [
             {
-              name: 'POSTGRES_SERVER'
+              name: 'DATABASE_HOST'
               value: postgresqlServer.properties.fullyQualifiedDomainName
             }
             {
-              name: 'POSTGRES_DB'
+              name: 'DATABASE_NAME'
               value: databaseName
             }
             {
-              name: 'POSTGRES_USER'
-              value: postgresqlAdminUsername
+              name: 'DATABASE_PORT'
+              value: '5432'
             }
             {
               name: 'DATABASE_TYPE'
@@ -356,6 +360,10 @@ resource containerAppApi 'Microsoft.App/containerApps@2024-03-01' = {
               name: 'AZURE_CLIENT_ID'
               value: userAssignedIdentity.properties.clientId
             }
+            {
+              name: 'MANAGED_IDENTITY_ENABLED'
+              value: 'true'
+            }
           ]
         }
       ]
@@ -365,10 +373,13 @@ resource containerAppApi 'Microsoft.App/containerApps@2024-03-01' = {
       }
     }
   }
-  dependsOn: []
+  dependsOn: [
+    containerAppEnvironment
+    userAssignedIdentity
+  ]
 }
 
-// Create Container App for Web (with placeholder image)
+// Create Container App for Web
 resource containerAppWeb 'Microsoft.App/containerApps@2024-03-01' = {
   name: '${projectName}-web'
   location: location
@@ -433,7 +444,24 @@ resource containerAppWeb 'Microsoft.App/containerApps@2024-03-01' = {
       }
     }
   }
-  dependsOn: []
+  dependsOn: [
+    containerAppEnvironment
+    userAssignedIdentity
+  ]
+}
+
+// ============================================================================
+// ENTRA ID CONFIGURATION SECTION
+// PostgreSQL Configuration for Entra ID - enable Azure Authentication
+// ============================================================================
+
+resource postgresqlConfig 'Microsoft.DBforPostgreSQL/flexibleServers/configurations@2024-08-01' = {
+  parent: postgresqlServer
+  name: 'azure.extensions'
+  properties: {
+    value: 'plpgsql,pgcrypto,uuid-ossp'
+    source: 'user-override'
+  }
 }
 
 // Output important values

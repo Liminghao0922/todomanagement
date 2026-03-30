@@ -143,6 +143,24 @@ $json | ConvertTo-Json | Set-Content infra/parameters.json
 | `projectName` | リソース名の接頭辞 | myapp / mycompany-todo |
 | `postgresqlAdminPassword` | PostgreSQL 管理者パスワード | Str0ng@Password2024! |
 
+### 4.3 ⚠️ PostgreSQL パスワードについて
+
+**重要な注釈**：
+
+- **初期化時のみ使用**: `postgresqlAdminPassword` は PostgreSQL サーバー作成時**のみ**必要です
+- **アプリケーションアクセス**: このプロジェクトは **Managed Identity** を使用しています
+  - ✅ アプリケーションはパスワード**なし**で PostgreSQL にアクセス
+  - ✅ より安全な認証方式です
+  - ✅ 認証情報を環境変数に保存する必要なし
+- **パスワード要件**: 以下の条件を満たす必要があります
+  - 8 文字以上
+  - 大文字を含む
+  - 小文字を含む
+  - 数字を含む
+  - 記号を含む
+
+**例**: `Str0ng@Password2024!`
+
 ---
 
 ## Step 5️⃣ インフラストラクチャをデプロイ
