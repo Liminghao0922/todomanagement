@@ -35,7 +35,7 @@ jobs:
           service_principal_password: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
           tenant: ${{ fromJson(secrets.AZURE_CREDENTIALS).tenantId }}
           registry: ${{ vars.ACR_NAME }}
-          repository: todomanagement-web
+          repository: {{PROJECT_NAME}}-web
           tag: latest
           dockerfile: Dockerfile
           folder: src/web
@@ -45,10 +45,10 @@ jobs:
       - name: Deploy to Container App
         run: |
           az containerapp up \
-            --name todomanagement-web \
+            --name {{PROJECT_NAME}}-web \
             --resource-group ${{ vars.RESOURCE_GROUP }} \
-            --environment cae-todomanagement-dev \
-            --image ${{ vars.ACR_NAME }}.azurecr.io/todomanagement-web:latest \
+            --environment cae-{{PROJECT_NAME}}-{{ENVIRONMENT}} \
+            --image ${{ vars.ACR_NAME }}.azurecr.io/{{PROJECT_NAME}}-web:latest \
             --target-port 3000 \
             --ingress external \
             --env-vars USER_ASSIGNED_IDENTITY_CLIENT_ID="${{ vars.USER_ASSIGNED_IDENTITY_CLIENT_ID }}"

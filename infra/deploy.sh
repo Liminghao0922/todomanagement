@@ -6,8 +6,8 @@
 set -e
 
 # Configuration variables
-RESOURCE_GROUP_NAME="rg-todomanagement-dev"
-LOCATION="japaneast"
+RESOURCE_GROUP_NAME="rg-{{PROJECT_NAME}}-{{ENVIRONMENT}}"
+LOCATION="{{AZURE_REGION}}"
 SUBSCRIPTION_ID=$(az account show --query "id" -o tsv)
 SUBSCRIPTION_NAME=$(az account show --query "name" -o tsv)
 

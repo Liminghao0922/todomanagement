@@ -1,15 +1,17 @@
-# Azure Infrastructure Deployment Script for Todo Management App (PowerShell)
+# Azure Infrastructure Deployment Script for {{PROJECT_TITLE}} (PowerShell)
 # This script deploys all infrastructure including VNet, PostgreSQL, Container Registry, and Container App Environment
+# 
+# Usage: .\deploy.ps1 -ResourceGroupName "rg-{{PROJECT_NAME}}-{{ENVIRONMENT}}" -Location "{{AZURE_REGION}}"
 
 param(
     [Parameter(Mandatory = $false)]
-    [string]$ResourceGroupName = "rg-todomanagement-dev",
+    [string]$ResourceGroupName = "rg-{{PROJECT_NAME}}-{{ENVIRONMENT}}",
     
     [Parameter(Mandatory = $false)]
-    [string]$Location = "japaneast",
+    [string]$Location = "{{AZURE_REGION}}",
     
     [Parameter(Mandatory = $false)]
-    [string]$Environment = "dev"
+    [string]$Environment = "{{ENVIRONMENT}}"
 )
 
 # Set error action

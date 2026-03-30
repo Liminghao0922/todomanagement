@@ -1,6 +1,8 @@
-# Todo Management
+# {{PROJECT_TITLE}}
 
 全栈示例：FastAPI + PostgreSQL 后端与 Vue 3 + Vite 前端，使用 Azure Container Apps、ACR、Entra ID 托管身份和私网访问实现零明文凭据架构。
+
+> 📌 **这是一个 GitHub Template Repository**。如果您是第一次使用，请先按照 [TEMPLATE_SETUP.md](./TEMPLATE_SETUP.md) 的步骤自定义项目名称和配置。
 
 ## 架构速览
 - 容器：`todomanagement-api`（FastAPI）与 `todomanagement-web`（Vite/Vue）。
@@ -13,6 +15,8 @@
 - `src/web`：Vue 3 SPA（MSAL 登录、Todo/搜索/周报功能）。
 - `infra`：Bicep 模板、部署脚本、参数文件。
 - `docs`：Entra 配置、GitHub 变量、Vite 构建等指南。
+- `TEMPLATE_SETUP.md`：Template 自定义指南（首次使用必读）。
+- `TEMPLATE_MIGRATION.md`：从旧版迁移指南。
 
 ## 本地运行
 前置：Python 3.11、pip、Node 18+、npm。
@@ -70,3 +74,24 @@ https://<web-fqdn>/            # 前端
 - `docs/GITHUB_VARIABLES_TROUBLESHOOTING.md`：变量缺失导致的 AADSTS700038 等错误  
 - `infra/DEPLOYMENT_CHECKLIST.md`：部署核对清单  
 - `docs/VITE_ENV_VARS_FIX.md`：Vite 编译期变量传递说明
+
+## 🎯 使用此 Template
+
+这是一个 GitHub Template Repository。要创建您自己的项目副本：
+
+1. **点击此仓库顶部的 "Use this template" 按钮**（或在 GitHub 中搜索该选项）
+2. **必读** → 按照 [TEMPLATE_SETUP.md](./TEMPLATE_SETUP.md) 自定义项目名称和 Azure 资源
+3. 配置 GitHub Secrets 和 Variables
+4. 推送到 main 分支并开始部署
+
+### 快速检查清单
+- [ ] 已阅读 [TEMPLATE_SETUP.md](./TEMPLATE_SETUP.md)
+- [ ] 已替换占位符 (`{{PROJECT_NAME}}` 等)
+- [ ] 已配置 GitHub Secrets 和 Variables
+- [ ] 已运行本地测试
+- [ ] 已部署到 Azure
+
+**首次使用一定要查看 [TEMPLATE_SETUP.md](./TEMPLATE_SETUP.md)！** 📚
+
+### 现有用户升级
+如果您之前使用过此项目，查看 [TEMPLATE_MIGRATION.md](./TEMPLATE_MIGRATION.md) 了解变更和升级建议。
