@@ -4,8 +4,6 @@
 
 本文档列出所有需要在GitHub Repository中配置的Secrets和Variables，用于CI/CD workflow正常运行。
 
-> 💡 **提示**：如果您是从 Template 创建的项目，请先完成 [TEMPLATE_SETUP.md](../TEMPLATE_SETUP.md) 中的占位符替换。
-
 ---
 
 ## 📋 GitHub Variables (不敏感信息)
@@ -14,16 +12,16 @@ Repository Variables位置：**Settings** → **Secrets and variables** → **Va
 
 | Variable Name | Value | Description |
 |---|---|---|
-| `ACR_NAME` | `acr{{PROJECT_NAME}}xxxxx` | Azure Container Registry的短名称（部署后从输出获取） |
-| `RESOURCE_GROUP` | `rg-{{PROJECT_NAME}}-{{ENVIRONMENT}}` | 部署目标的Azure资源组 |
-| `POSTGRES_SERVER` | `postgres-{{PROJECT_NAME}}-xxxxx.postgres.database.azure.com` | PostgreSQL 服务器完整域名 |
+| `ACR_NAME` | `acrtodomanagementvkql5e2kbh2na` | Azure Container Registry的短名称 |
+| `RESOURCE_GROUP` | `rg-todomanagement-dev` | 部署目标的Azure资源组 |
+| `POSTGRES_SERVER` | `postgres-todomanagement-xxxxx.postgres.database.azure.com` | PostgreSQL 服务器完整域名 |
 | `POSTGRES_DB` | `tododb` | PostgreSQL 数据库名称 |
 | `POSTGRES_USER` | (Entra ID user/app) | 授予 PostgreSQL 权限的 Entra ID 身份 |
 | `AZURE_CLIENT_ID` | (Azure Entra ID应用ID) | Web应用的Azure Entra ID应用客户端ID |
 | `AZURE_TENANT_ID` | (你的Azure租户ID) | Azure租户ID |
-| `AZURE_REDIRECT_URI` | `https://{{PROJECT_NAME}}-web-xxxxx.{{AZURE_REGION}}.azurecontainerapps.io` | OAuth重定向URI（部署后的web应用URL） |
-| `API_BASE_URL` | `https://{{PROJECT_NAME}}-api-xxxxx.{{AZURE_REGION}}.azurecontainerapps.io` | API服务的基础URL |
-| `USER_ASSIGNED_IDENTITY_CLIENT_ID` | (托管身份 Client ID) | Container App使用的用户分配托管标识ID |
+| `AZURE_REDIRECT_URI` | `https://your-domain.com` | OAuth重定向URI（部署后的web应用URL） |
+| `API_BASE_URL` | `https://api.your-domain.com` | API服务的基础URL |
+| `USER_ASSIGNED_IDENTITY_CLIENT_ID` | (用户分配的托管标识Client ID) | Container App使用的用户分配托管标识ID |
 
 ### 设置步骤
 
@@ -52,7 +50,7 @@ Repository Secrets位置：**Settings** → **Secrets and variables** → **Secr
 ```powershell
 # 替换 <SUBSCRIPTION_ID> 和 <RESOURCE_GROUP> 为实际值
 $subscriptionId = "your-subscription-id-here"
-$resourceGroup = "rg-{{PROJECT_NAME}}-{{ENVIRONMENT}}"
+$resourceGroup = "rg-todomanagement-dev"
 
 az ad sp create-for-rbac `
   --name "github-todomanagement-actions" `

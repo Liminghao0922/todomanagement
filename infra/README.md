@@ -55,8 +55,8 @@ infra/
 # 导航到infra目录
 cd .\infra
 
-# 运行部署脚本（使用自定义资源组名称）
-.\deploy.ps1 -ResourceGroupName "rg-{{PROJECT_NAME}}-{{ENVIRONMENT}}" -Location "{{AZURE_REGION}}"
+# 运行部署脚本
+.\deploy.ps1 -ResourceGroupName "rg-todomanagement-dev" -Location "japaneast"
 ```
 
 ### 步骤3：使用Bash部署（Linux/macOS）
@@ -81,13 +81,13 @@ az account set --subscription "<subscription-id>"
 
 # 创建资源组（使用自定义名称）
 az group create \
-  --name "rg-{{PROJECT_NAME}}-{{ENVIRONMENT}}" \
-  --location "{{AZURE_REGION}}"
+  --name "rg-todomanagement-dev" \
+  --location "japaneast"
 
 # 部署Bicep模板
 az deployment group create \
   --name "infra-deployment" \
-  --resource-group "rg-{{PROJECT_NAME}}-{{ENVIRONMENT}}" \
+  --resource-group "rg-todomanagement-dev" \
   --template-file "infra/main.bicep" \
   --parameters "infra/parameters.json"
 ```
@@ -97,14 +97,14 @@ az deployment group create \
 部署完成后，您将获得以下资源：
 
 ### Virtual Network
-- 名称: `vnet-{{PROJECT_NAME}}-{{ENVIRONMENT}}`
+- 名称: `vnet-todomanagement-dev`
 - 地址范围: 10.0.0.0/16
 - 子网:
   - PostgreSQL 子网: 10.0.1.0/24
   - Container App 子网: 10.0.2.0/24
 
 ### PostgreSQL Flexible Server
-- 自动生成的名称 (例: `postgres-{{PROJECT_NAME}}-xxxxx`)
+- 自动生成的名称 (例: `postgres-todomanagement-xxxxx`)
 - 版本: PostgreSQL 17
 - SKU: Standard_B1ms (Burstable)
 - 存储: 32GB
@@ -112,12 +112,12 @@ az deployment group create \
 - 私有DNS: 已配置
 
 ### Azure Container Registry
-- 自动生成的名称 (例: `acr{{PROJECT_NAME}}ixxxxx`)
+- 自动生成的名称 (例: `acrtodemanagementixxxxx`)
 - SKU: Standard
 - 位置: 同资源组
 
 ### Container App Environment
-- 名称: `cae-{{PROJECT_NAME}}-{{ENVIRONMENT}}`
+- 名称: `cae-todomanagement-dev`
 - VNet集成: 是（使用Container App子网）
 - Log Analytics: 已配置
 
@@ -284,13 +284,13 @@ conn = psycopg2.connect(
 ```bash
 # 检查PostgreSQL服务器状态
 az postgres flexible-server show \
-  --resource-group "rg-{{PROJECT_NAME}}-{{ENVIRONMENT}}" \
-  --name "postgres-{{PROJECT_NAME}}-xxxxx"
+  --resource-group "rg-todomanagement-dev" \
+  --name "postgres-todomanagement-xxxxx"
 
 # 检查防火墙规则
 az postgres flexible-server firewall-rule list \
-  --resource-group "rg-{{PROJECT_NAME}}-{{ENVIRONMENT}}" \
-  --server-name "postgres-{{PROJECT_NAME}}-xxxxx"
+  --resource-group "rg-todomanagement-dev" \
+  --server-name "postgres-todomanagement-xxxxx"
 ```
 
 ### Container App无法连接PostgreSQL
@@ -302,8 +302,8 @@ az postgres flexible-server firewall-rule list \
 
 ```bash
 az containerapp logs show \
-  --resource-group "rg-{{PROJECT_NAME}}-{{ENVIRONMENT}}" \
-  --name "ca-{{PROJECT_NAME}}-api"
+  --resource-group "rg-todomanagement-dev" \
+  --name "ca-todomanagement-api"
 ```
 
 ## 清理资源
@@ -312,7 +312,7 @@ az containerapp logs show \
 
 ```bash
 az group delete \
-  --name "rg-{{PROJECT_NAME}}-{{ENVIRONMENT}}" \
+  --name "rg-todomanagement-dev" \
   --yes --no-wait
 ```
 

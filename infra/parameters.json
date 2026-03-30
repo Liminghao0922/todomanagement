@@ -3,13 +3,13 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "location": {
-      "value": "{{AZURE_REGION}}"
+      "value": "japaneast"
     },
     "environment": {
-      "value": "{{ENVIRONMENT}}"
+      "value": "dev"
     },
     "projectName": {
-      "value": "{{PROJECT_NAME}}"
+      "value": "todomanagement"
     },
     "postgresqlVersion": {
       "value": "17"
