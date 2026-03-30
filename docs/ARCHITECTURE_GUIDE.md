@@ -4,6 +4,8 @@
 
 Your infrastructure implements a **private, secure, identity-based** architecture with zero hardcoded secrets.
 
+![Architecture](../images/01.Architecture.png)
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                      Azure Cloud Environment                     │
@@ -180,13 +182,15 @@ When a user accesses the Todo application:
 ### Zero-Trust Principles Implemented
 
 #### 1. **No Hardcoded Secrets**
+
 - ❌ Database passwords NOT stored
-- ❌ ACR credentials NOT stored  
+- ❌ ACR credentials NOT stored
 - ❌ GitHub secrets limited to Service Principal ID only
 - ✅ Tokens acquired at runtime via managed identity
 - ✅ Tokens automatically refreshed
 
 #### 2. **Private Network Only**
+
 - ❌ ACR public endpoint disabled
 - ❌ PostgreSQL public endpoint disabled
 - ✅ All communication via private endpoints
@@ -194,6 +198,7 @@ When a user accesses the Todo application:
 - ✅ Private DNS zones ensure internal resolution
 
 #### 3. **Identity-Based Access (Entra ID)**
+
 - ❌ Username/password authentication NOT used
 - ✅ Container App = Entra ID Service Principal
 - ✅ PostgreSQL role tied to Entra ID object
@@ -201,19 +206,22 @@ When a user accesses the Todo application:
 - ✅ GitHub Actions via federated credentials
 
 #### 4. **Least Privilege Access**
+
 - Container App identity:
+
   - ✅ Can only PULL images from ACR (AcrPull role)
   - ✅ Cannot PUSH or DELETE images
   - ✅ Can only access PostgreSQL (no admin roles)
   - ✅ Cannot modify other resources in subscription
-
 - PostgreSQL role:
+
   - ✅ Can SELECT, INSERT, UPDATE, DELETE on tables
   - ✅ Cannot DROP or ALTER tables
   - ✅ Cannot access other databases
   - ✅ Cannot manage users or roles
 
 #### 5. **Secure GitHub Integration**
+
 - ❌ No stored Azure credentials in GitHub
 - ❌ No Service Principal password/secret in GitHub
 - ✅ Service Principal ID only (public safe)
@@ -310,6 +318,7 @@ Resource Group (rg-todomanagement-dev)
 ## Deployment Stages
 
 ### Stage 1: Infrastructure (Bicep)
+
 ```
 Deploy main.bicep
 ├─ Virtual Network (VNet, subnets, delegations)
@@ -327,6 +336,7 @@ Deploy main.bicep
 **Status**: ✅ Automated via `.\deploy.ps1`
 
 ### Stage 2: GitHub Configuration
+
 ```
 Manual setup via .\setup-github-secrets.ps1
 ├─ Service Principal creation
@@ -341,6 +351,7 @@ Manual setup via .\setup-github-secrets.ps1
 **Status**: ✅ Semi-automated helper script provided
 
 ### Stage 3: PostgreSQL Configuration
+
 ```
 Manual SQL execution on PostgreSQL
 ├─ Connect as admin (postgres user)
@@ -355,6 +366,7 @@ Manual SQL execution on PostgreSQL
 **Status**: ⏳ Manual SQL commands in POSTGRESQL_ENTRA_ID_AUTH.md
 
 ### Stage 4: Application Code
+
 ```
 Update source code
 ├─ Update requirements.txt (add azure-identity)
@@ -366,6 +378,7 @@ Update source code
 **Status**: ⏳ Code changes needed to application
 
 ### Stage 5: CI/CD - GitHub Actions
+
 ```
 On code push to main
 ├─ Trigger: Build-Deploy-ACR workflow
@@ -411,13 +424,14 @@ Azure Portal
 
 ### Common Troubleshooting
 
-| Issue | Symptom | Cause | Fix |
-|-------|---------|-------|-----|
-| Cannot pull image | "Authentication failed" | UAI not assigned to Container App | Assign Identity in portal |
-| Database connection failed | "Connection refused" | PostgreSQL role missing | Run CREATE ROLE SQL |
-| Workflow fails to push | "Unauthorized" in GitHub Actions | Service Principal lacks AcrPush | Assign role: `az role assignment create` |
-| Private DNS not resolving | Cannot reach ACR/PostgreSQL | DNS zone not linked to VNet | Link private DNS zone to VNet |
-| Token expired | 401 Unauthorized | Token refresh mechanism broken | Restart Container App |
+
+| Issue                      | Symptom                          | Cause                             | Fix                                     |
+| -------------------------- | -------------------------------- | --------------------------------- | --------------------------------------- |
+| Cannot pull image          | "Authentication failed"          | UAI not assigned to Container App | Assign Identity in portal               |
+| Database connection failed | "Connection refused"             | PostgreSQL role missing           | Run CREATE ROLE SQL                     |
+| Workflow fails to push     | "Unauthorized" in GitHub Actions | Service Principal lacks AcrPush   | Assign role:`az role assignment create` |
+| Private DNS not resolving  | Cannot reach ACR/PostgreSQL      | DNS zone not linked to VNet       | Link private DNS zone to VNet           |
+| Token expired              | 401 Unauthorized                 | Token refresh mechanism broken    | Restart Container App                   |
 
 ## Network Architecture Details
 
@@ -524,23 +538,24 @@ Cost reduction tips:
 
 ## Security Checklist
 
-- [x] No hardcoded secrets in code
-- [x] No passwords in GitHub/documentation
-- [x] Private endpoints for all data services
-- [x] Managed identity for container authentication
-- [x] RBAC with least privilege
-- [x] Entra ID authentication for PostgreSQL
-- [x] SSL/TLS encryption in transit
-- [x] Network isolation via VNet
-- [x] GitHub OIDC federated credentials
-- [x] Regular token rotation (automatic)
-- [x] Audit logging enabled
-- [x] Private DNS zones for internal resolution
-- [x] Network policies can be added for additional segmentation
+- [X]  No hardcoded secrets in code
+- [X]  No passwords in GitHub/documentation
+- [X]  Private endpoints for all data services
+- [X]  Managed identity for container authentication
+- [X]  RBAC with least privilege
+- [X]  Entra ID authentication for PostgreSQL
+- [X]  SSL/TLS encryption in transit
+- [X]  Network isolation via VNet
+- [X]  GitHub OIDC federated credentials
+- [X]  Regular token rotation (automatic)
+- [X]  Audit logging enabled
+- [X]  Private DNS zones for internal resolution
+- [X]  Network policies can be added for additional segmentation
 
 ## Production Readiness
 
 ### Current State
+
 ✅ Production-ready architecture
 ✅ Security best practices implemented
 ✅ High availability potential (can add replicas)
