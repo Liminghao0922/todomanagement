@@ -27,11 +27,11 @@
 1. リポジトリページの右上にある **"Use this template"** ボタンをクリック
 2. **"Create a new repository"** を選択
 3. 以下の情報を入力します：
+
    - **Repository name**: 任意の名前（例：`my-todo-app`）
    - **Description**: 任意（例：`My Todo Management App`）
    - **Visibility**: `Public` または `Private` を選択
    - **Include all branches**: チェック不要
-
 4. **"Create repository from template"** をクリック
 
 ---
@@ -104,19 +104,36 @@ cat infra/parameters.json
 **infra/parameters.json** 内容（デフォルト値）：
 
 ```json
-{
+  {
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
   "parameters": {
     "location": {
-      "value": "japaneast"  // ← 必要に応じて変更（例：eastus）
+      "value": "japaneast"    // ← 必要に応じて変更（例：eastus）
     },
     "environment": {
-      "value": "dev"  // dev / staging / prod
+      "value": "dev"   // dev / staging / prod
     },
     "projectName": {
-      "value": "todomanagement"  // ← リソース名用
+      "value": "todomanagement"   // ← リソース名用
+    },
+    "postgresqlVersion": {
+      "value": "17"
+    },
+    "postgresqlAdminUsername": {
+      "value": "postgres"
     },
     "postgresqlAdminPassword": {
-      "value": "Change@Me123!"  // ⚠️ 強力なパスワードに変更！
+      "value": "Change@Me123!"   // ⚠️ 強力なパスワードに変更！
+    },
+    "vnetAddressPrefix": {
+      "value": "10.0.0.0/16"
+    },
+    "postgresSubnetPrefix": {
+      "value": "10.0.1.0/24"
+    },
+    "containerAppSubnetPrefix": {
+      "value": "10.0.2.0/24"
     }
   }
 }
@@ -125,23 +142,27 @@ cat infra/parameters.json
 ### 4.2 Cloud Shell 内で編集（オプション）
 
 ```powershell
-# Nano エディタで編集
+environment# Nano エディタで編集
 nano infra/parameters.json
 
 # または PowerShell で直接編集
 $json = Get-Content infra/parameters.json | ConvertFrom-Json
+$json.parameters.location.value = "japaneast"
+$json.parameters.environment.value = "handson"
+$json.parameters.projectName.value = "mytodoapp001"
 $json.parameters.postgresqlAdminPassword.value = "YourStrongPassword@123"
 $json | ConvertTo-Json | Set-Content infra/parameters.json
 ```
 
 **重要な変更項目：**
 
-| 項目 | 説明 | 例 |
-|------|------|-----|
-| `location` | Azure リージョン | japaneast / eastus / westeurope |
-| `environment` | 環境識別子 | dev (開発) / staging / prod (本番) |
-| `projectName` | リソース名の接頭辞 | myapp / mycompany-todo |
-| `postgresqlAdminPassword` | PostgreSQL 管理者パスワード | Str0ng@Password2024! |
+
+| 項目                      | 説明                        | 例                                 |
+| ------------------------- | --------------------------- | ---------------------------------- |
+| `location`                | Azure リージョン            | japaneast / eastus / westeurope    |
+| `environment`             | 環境識別子                  | dev (開発) / staging / prod (本番) |
+| `projectName`             | リソース名の接頭辞          | myapp / mycompany-todo             |
+| `postgresqlAdminPassword` | PostgreSQL 管理者パスワード | Str0ng@Password2024!               |
 
 ### 4.3 ⚠️ PostgreSQL パスワードについて
 
@@ -169,7 +190,7 @@ $json | ConvertTo-Json | Set-Content infra/parameters.json
 
 ```powershell
 # 変数を設定
-$resourceGroupName = "rg-todomanagement-dev"
+$resourceGroupName = "rg-todomanagement-handson001"
 $location = "japaneast"
 
 # リソースグループを作成
@@ -181,7 +202,7 @@ az group create `
 az group list --output table
 ```
 
-### 5.2 デプロイスクリプトを実行
+### 5.2 デプロイスクリプトを実行 （**所要時間**：）
 
 ```powershell
 # infra ディレクトリに移動
@@ -189,7 +210,7 @@ cd infra
 
 # PowerShell スクリプトを実行
 # Windows PowerShell では以下のコマンドで実行可能にする
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+# Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
 
 # デプロイを実行
 .\deploy.ps1 -ResourceGroupName $resourceGroupName -Location $location
@@ -269,7 +290,7 @@ $sp | ConvertTo-Json
 
 ### 7.2 Secret を追加
 
-**Name**: `AZURE_CREDENTIALS`  
+**Name**: `AZURE_CREDENTIALS`
 **Value**: Step 6.1 でコピーした JSON 全体をペースト
 
 ```json
@@ -288,20 +309,22 @@ $sp | ConvertTo-Json
 
 以下の Variables を追加します：
 
-| Variable Name | Value | 説明 |
-|---|---|---|
-| `ACR_NAME` | `acrtodomanagementxxxxx` | デプロイ出力から取得 |
-| `RESOURCE_GROUP` | `rg-todomanagement-dev` | デプロイ出力から取得 |
-| `POSTGRES_SERVER` | `postgres-todomanagement-xxxxx` | デプロイ出力から取得 |
-| `POSTGRES_DB` | `tododb` | デフォルト |
-| `POSTGRES_USER` | `postgres` | デフォルト |
-| `AZURE_CLIENT_ID` | `[Entra ID App ID]` | Azure Portal から取得 |
-| `AZURE_TENANT_ID` | `[租户 ID]` | Azure Portal から取得 |
-| `AZURE_REDIRECT_URI` | `https://[web-app-url]` | デプロイ後に取得 |
-| `API_BASE_URL` | `https://[api-app-url]` | デプロイ後に取得 |
-| `USER_ASSIGNED_IDENTITY_CLIENT_ID` | `[Managed Identity Client ID]` | デプロイ出力から取得 |
+
+| Variable Name                      | Value                           | 説明                  |
+| ---------------------------------- | ------------------------------- | --------------------- |
+| `ACR_NAME`                         | `acrtodomanagementxxxxx`        | デプロイ出力から取得  |
+| `RESOURCE_GROUP`                   | `rg-todomanagement-dev`         | デプロイ出力から取得  |
+| `POSTGRES_SERVER`                  | `postgres-todomanagement-xxxxx` | デプロイ出力から取得  |
+| `POSTGRES_DB`                      | `tododb`                        | デフォルト            |
+| `POSTGRES_USER`                    | `postgres`                      | デフォルト            |
+| `AZURE_CLIENT_ID`                  | `[Entra ID App ID]`             | Azure Portal から取得 |
+| `AZURE_TENANT_ID`                  | `[租户 ID]`                     | Azure Portal から取得 |
+| `AZURE_REDIRECT_URI`               | `https://[web-app-url]`         | デプロイ後に取得      |
+| `API_BASE_URL`                     | `https://[api-app-url]`         | デプロイ後に取得      |
+| `USER_ASSIGNED_IDENTITY_CLIENT_ID` | `[Managed Identity Client ID]`  | デプロイ出力から取得  |
 
 **追加方法**：
+
 1. **New repository variable** をクリック
 2. **Name** に変数名を入力
 3. **Value** に値を入力
@@ -342,6 +365,7 @@ git push origin main
 ```
 
 確認：
+
 ```bash
 # リモート確認
 git log --oneline
@@ -362,6 +386,7 @@ git log --oneline
 ### 9.2 Workflow の自動実行を待つ
 
 **トリガー条件**：
+
 - `main` ブランチへの `push` 時に自動実行
 - `src/api/` または `.github/workflows/build-deploy-api.yml` が変更された場合 → API ワークフロー実行
 - `src/web/` または `.github/workflows/build-deploy-web.yml` が変更された場合 → Web ワークフロー実行
@@ -480,20 +505,20 @@ app.add_middleware(
 
 ## 完了チェックリスト ✅
 
-- [ ] GitHub から Template をクローン
-- [ ] Azure Cloud Shell を起動（PowerShell）
-- [ ] リポジトリをダウンロード
-- [ ] infra/parameters.json を修正
-- [ ] `az group create` でリソースグループ作成
-- [ ] `.\deploy.ps1` でインフラをデプロイ
-- [ ] .env ファイルを設定
-- [ ] Service Principal を作成
-- [ ] GitHub Secrets に `AZURE_CREDENTIALS` を追加
-- [ ] GitHub Variables を 9 個追加
-- [ ] `git commit` と `git push`
-- [ ] GitHub Actions が正常に実行
-- [ ] Web アプリにアクセス可能
-- [ ] Login 機能が動作
+- [ ]  GitHub から Template をクローン
+- [ ]  Azure Cloud Shell を起動（PowerShell）
+- [ ]  リポジトリをダウンロード
+- [ ]  infra/parameters.json を修正
+- [ ]  `az group create` でリソースグループ作成
+- [ ]  `.\deploy.ps1` でインフラをデプロイ
+- [ ]  .env ファイルを設定
+- [ ]  Service Principal を作成
+- [ ]  GitHub Secrets に `AZURE_CREDENTIALS` を追加
+- [ ]  GitHub Variables を 9 個追加
+- [ ]  `git commit` と `git push`
+- [ ]  GitHub Actions が正常に実行
+- [ ]  Web アプリにアクセス可能
+- [ ]  Login 機能が動作
 
 ---
 
@@ -545,20 +570,21 @@ git pull origin main
 ✨ デプロイ完了後：
 
 1. **カスタマイズ**
+
    - `src/web/src/` で UI をカスタマイズ
    - `src/api/` でビジネスロジックを追加
    - 変更をコミット・プッシュで自動デプロイ
-
 2. **本番環境準備**
+
    - 環境を `prod` に変更
    - より強力なデータベース SKU を選択
    - Entra ID テナントで認証設定
-
 3. **モニタリング**
+
    - Azure Monitor でログ確認
    - Application Insights でパフォーマンス確認
-
 4. **ドキュメント参照**
+
    - `docs/ARCHITECTURE_GUIDE.md` - アーキテクチャ詳細
    - `docs/GITHUB_CONFIG_SETUP.md` - GitHub 設定詳細
    - `README.md` - 本体ドキュメント
@@ -577,5 +603,5 @@ git pull origin main
 
 **楽しいデプロイを！🚀**
 
-作成日：2026-03-30  
+作成日：2026-03-30
 バージョン：1.0

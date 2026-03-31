@@ -19,7 +19,7 @@ param(
     
     [Parameter(Mandatory=$false)]
     [string]$ApiBaseUrl,  # API 服务基础 URL
-    
+
     [Parameter(Mandatory=$false)]
     [string]$UserAssignedIdentityClientId  # 用户分配托管标识 Client ID
 )
