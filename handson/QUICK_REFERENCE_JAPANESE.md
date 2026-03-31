@@ -34,8 +34,8 @@
                      ↓
 ┌─────────────────────────────────────────────────────┐
 │ 6️⃣ 環境変数ファイル (.env.local) 作成            │
-│    - src/api/.env.local                             │
-│    - src/web/.env.local                             │
+│    - src/api/.env.local.example → .env.local        │
+│    - src/web/.env.example → .env.local              │
 └────────────────────┬────────────────────────────────┘
                      ↓
 ┌─────────────────────────────────────────────────────┐
@@ -148,7 +148,7 @@ az containerapp show `
 
 ## 📝 .env ファイルテンプレート
 
-### src/api/.env.local
+### src/api/.env.local.example
 
 ```env
 DATABASE_TYPE=postgresql

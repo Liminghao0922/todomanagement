@@ -196,7 +196,7 @@ Write-Host "==========================================" -ForegroundColor Green
 Write-Host "后续步骤" -ForegroundColor Green
 Write-Host "==========================================" -ForegroundColor Green
 Write-Host "1. 配置PostgreSQL Entra ID认证"
-Write-Host "2. 运行 postgres-setup.sql 初始化数据库"
+Write-Host "2. 启动 API 服务并自动初始化数据库表"
 Write-Host "3. 部署Container App并配置Entra ID认证"
 Write-Host "4. 测试Container App与PostgreSQL的连接"
 Write-Host ""

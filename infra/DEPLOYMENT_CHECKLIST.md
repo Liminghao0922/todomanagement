@@ -41,8 +41,8 @@ This checklist guides you through deploying all three enhancements:
 
 2. **Save Deployment Outputs**
    ```powershell
-   # Deployment outputs saved to deployment-outputs.json
-   cat deployment-outputs.json | convertfrom-json | format-table
+    # Read outputs directly from latest deployment
+    az deployment group list --resource-group rg-todomanagement-dev --query "[0].properties.outputs" -o json
    ```
    
    - [ ] Note these critical values:
@@ -566,7 +566,7 @@ az deployment group show --resource-group rg-todomanagement-dev --name infra-dep
 az containerapp logs show --name container-app-name --resource-group rg-todomanagement-dev
 
 # Get deployment outputs
-cat deployment-outputs.json | convertfrom-json | format-table
+az deployment group list --resource-group rg-todomanagement-dev --query "[0].properties.outputs" -o json
 
 # Test PostgreSQL connection
 psql --host=<server>.postgres.database.azure.com --username=postgres --dbname=tododb --set sslmode=require

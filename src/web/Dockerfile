@@ -12,7 +12,6 @@ RUN npm install --legacy-peer-deps
 # Copy source code
 COPY index.html vite.config.ts tsconfig.json tsconfig.node.json ./
 COPY src ./src
-COPY public ./public
 
 # Build parameters for Vite
 ARG VITE_AZURE_CLIENT_ID

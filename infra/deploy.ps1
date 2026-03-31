@@ -80,7 +80,7 @@ Write-Host "Infrastructure deployed" -ForegroundColor Green
 Write-Host ""
 
 # Step 3: Retrieve deployment outputs
-Write-Host "[3/4] Retrieving deployment outputs..." -ForegroundColor Yellow
+Write-Host "[3/3] Retrieving deployment outputs..." -ForegroundColor Yellow
 
 $deployments = az deployment group list `
     --resource-group $ResourceGroupName `
@@ -108,30 +108,7 @@ Write-Host "  1. Configure PostgreSQL Entra ID authentication"
 Write-Host "  2. Deploy Container Apps"
 Write-Host "  3. Create PostgreSQL managed identity roles"
 Write-Host ""
-
-# Save outputs to file for future reference
-Write-Host "[4/4] Saving deployment outputs..." -ForegroundColor Yellow
-$outputObject = @{
-    resourceGroupName = $ResourceGroupName
-    location = $Location
-    environment = $Environment
-    postgresqlServerName = $outputs.postgresqlServerName.value
-    postgresqlHostname = $outputs.postgresqlHostname.value
-    postgresqlServerId = $outputs.postgresqlServerId.value
-    databaseName = $outputs.databaseName.value
-    containerAppEnvironmentName = $outputs.containerAppEnvironmentName.value
-    containerAppEnvironmentId = $outputs.containerAppEnvironmentId.value
-    containerRegistryName = $outputs.containerRegistryName.value
-    containerRegistryLoginServer = $outputs.containerRegistryLoginServer.value
-    vnetId = $outputs.vnetId.value
-    postgresSubnetId = $outputs.postgresSubnetId.value
-    containerAppSubnetId = $outputs.containerAppSubnetId.value
-}
-
-$outputJson = $outputObject | ConvertTo-Json
-$outputJson | Out-File -FilePath "deployment-outputs.json" -Encoding UTF8
 Write-Host ""
 Write-Host "==========================================" -ForegroundColor Green
 Write-Host "Deployment Completed!" -ForegroundColor Green
 Write-Host "==========================================" -ForegroundColor Green
-Write-Host "Deployment outputs saved to: deployment-outputs.json" -ForegroundColor Green

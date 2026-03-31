@@ -211,8 +211,8 @@ az group delete --name rg-todomanagement-dev --yes --no-wait
 - **docs/ARCHITECTURE_GUIDE.md** - システムアーキテクチャ
 - **docs/GITHUB_CONFIG_SETUP.md** - GitHub 設定詳細
 - **infra/README.md** - Bicep テンプレート詳細
-- **src/api/README.md** - API ドキュメント
-- **src/web/README.md** - Web フロントエンド ドキュメント
+- **src/api/** - API ソースコード
+- **src/web/** - Web フロントエンド ソースコード
 
 ---
 

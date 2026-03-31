@@ -52,7 +52,7 @@ cd todomanagement/infra
 4) 部署基础设施（RG、VNet、PostgreSQL、ACR、Container Apps 环境、私有 DNS）：
 ```bash
 chmod +x deploy.sh
-./deploy.sh  # 输出同时写入 deployment-outputs.json
+./deploy.sh
 ```
 5) 记录部署输出（PostgreSQL 主机名/DB、ACR 名称、Container Apps Environment、托管身份等）。  
 6) 在 GitHub 仓库配置 Secrets/Variables（详见 `docs/GITHUB_CONFIG_SETUP.md` 与 `docs/VITE_ENV_VARS_FIX.md`）：

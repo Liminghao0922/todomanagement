@@ -41,7 +41,7 @@
 
 ### 步骤 3: 配置环境变量
 
-在 `src/web/.env.development` 中设置：
+在 `src/web/.env.local` 中设置：
 
 ```env
 VITE_AZURE_CLIENT_ID=your-client-id-here
