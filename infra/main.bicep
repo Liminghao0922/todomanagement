@@ -314,7 +314,7 @@ resource containerAppApi 'Microsoft.App/containerApps@2024-03-01' = {
     managedEnvironmentId: containerAppEnvironment.id
     configuration: {
       ingress: {
-        external: true
+        external: false
         targetPort: 80
         transport: 'auto'
         allowInsecure: false
@@ -329,7 +329,8 @@ resource containerAppApi 'Microsoft.App/containerApps@2024-03-01' = {
     template: {
       containers: [
         {
-          image: 'nginx:latest'
+          image: 'docker.io/nginx:latest'
+          imageType: 'ContainerImage'
           name: '${projectName}-api'
           resources: {
             cpu: json('0.5')
@@ -368,8 +369,8 @@ resource containerAppApi 'Microsoft.App/containerApps@2024-03-01' = {
         }
       ]
       scale: {
-        minReplicas: 1
-        maxReplicas: 3
+        minReplicas: 0
+        maxReplicas: 2
       }
     }
   }
@@ -404,7 +405,8 @@ resource containerAppWeb 'Microsoft.App/containerApps@2024-03-01' = {
     template: {
       containers: [
         {
-          image: 'nginx:latest'
+          image: 'docker.io/nginx:latest'
+          imageType: 'ContainerImage'
           name: '${projectName}-web'
           resources: {
             cpu: json('0.25')
@@ -435,7 +437,7 @@ resource containerAppWeb 'Microsoft.App/containerApps@2024-03-01' = {
         }
       ]
       scale: {
-        minReplicas: 1
+        minReplicas: 0
         maxReplicas: 2
       }
     }
