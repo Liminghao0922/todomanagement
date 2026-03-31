@@ -153,6 +153,17 @@ resource fwRule 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2024-08
   }
 }
 
+// Configure User Assigned Identity as PostgreSQL Entra Admin
+resource postgresAdmin 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@2024-08-01' = {
+  parent: postgresqlServer
+  name: guid(userAssignedIdentity.id, 'administrators')
+  properties: {
+    principalType: 'ServicePrincipal'
+    tenantId: subscription().tenantId
+    principalName: userAssignedIdentity.name
+  }
+}
+
 // Azure Container Registry
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
   name: containerRegistryName
@@ -250,20 +261,17 @@ resource acrPrivateDnsZoneGroup 'Microsoft.Network/privateEndpoints/privateDnsZo
 // To assign the role manually, run:
 // az role assignment create --assignee-object-id <uai-principal-id> --role "AcrPull" --scope <acr-id>
 // Uncomment the resource below if you have subscription-level permissions:
-/*
+
 resource acrPullRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   scope: containerRegistry
   name: guid(containerRegistry.id, userAssignedIdentity.id, 'AcrPull')
   properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4694-a41a-4ac8986f8c5b')
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
     principalId: userAssignedIdentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
-  dependsOn: [
-    userAssignedIdentity
-  ]
 }
-*/
+
 
 // Create Log Analytics Workspace for Container App Environment
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
@@ -319,12 +327,6 @@ resource containerAppApi 'Microsoft.App/containerApps@2024-03-01' = {
         transport: 'auto'
         allowInsecure: false
       }
-      registries: [
-        {
-          server: containerRegistry.properties.loginServer
-          identity: userAssignedIdentity.id
-        }
-      ]
     }
     template: {
       containers: [
@@ -394,12 +396,6 @@ resource containerAppWeb 'Microsoft.App/containerApps@2024-03-01' = {
         transport: 'auto'
         allowInsecure: false
       }
-      registries: [
-        {
-          server: containerRegistry.properties.loginServer
-          identity: userAssignedIdentity.id
-        }
-      ]
     }
     template: {
       containers: [
