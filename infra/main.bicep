@@ -330,7 +330,6 @@ resource containerAppApi 'Microsoft.App/containerApps@2024-03-01' = {
       containers: [
         {
           image: 'docker.io/nginx:latest'
-          imageType: 'ContainerImage'
           name: '${projectName}-api'
           resources: {
             cpu: json('0.5')
@@ -406,7 +405,6 @@ resource containerAppWeb 'Microsoft.App/containerApps@2024-03-01' = {
       containers: [
         {
           image: 'docker.io/nginx:latest'
-          imageType: 'ContainerImage'
           name: '${projectName}-web'
           resources: {
             cpu: json('0.25')
