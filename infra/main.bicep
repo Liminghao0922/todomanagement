@@ -373,10 +373,6 @@ resource containerAppApi 'Microsoft.App/containerApps@2024-03-01' = {
       }
     }
   }
-  dependsOn: [
-    containerAppEnvironment
-    userAssignedIdentity
-  ]
 }
 
 // Create Container App for Web
@@ -444,10 +440,6 @@ resource containerAppWeb 'Microsoft.App/containerApps@2024-03-01' = {
       }
     }
   }
-  dependsOn: [
-    containerAppEnvironment
-    userAssignedIdentity
-  ]
 }
 
 // ============================================================================
