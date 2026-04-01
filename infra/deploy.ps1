@@ -80,7 +80,7 @@ Write-Host "Infrastructure deployed" -ForegroundColor Green
 Write-Host ""
 
 # Step 3: Retrieve deployment outputs
-Write-Host "[3/4] Retrieving deployment outputs..." -ForegroundColor Yellow
+Write-Host "[3/3] Retrieving deployment outputs..." -ForegroundColor Yellow
 
 $deployments = az deployment group list `
     --resource-group $ResourceGroupName `
@@ -90,34 +90,7 @@ $outputs = $deployments.properties.outputs
 
 Write-Host "Deployment successful!" -ForegroundColor Green
 Write-Host ""
-# Step 4: Configure PostgreSQL Entra Admin (UAI)
-# Bicep cannot use runtime principalId as resource name, so we use CLI here
-Write-Host "[4/4] Configuring PostgreSQL Entra ID admin (User Assigned Identity)..." -ForegroundColor Yellow
 
-$pgServerName   = $outputs.postgresqlServerName.value
-$uaiPrincipalId = $outputs.userAssignedIdentityPrincipalId.value
-$uaiClientId    = $outputs.userAssignedIdentityClientId.value
-$uaiName        = "uai-todomanagement-$Environment"
-
-Write-Host "  PostgreSQL Server : $pgServerName" -ForegroundColor Cyan
-Write-Host "  UAI Name         : $uaiName" -ForegroundColor Cyan
-Write-Host "  UAI Principal ID : $uaiPrincipalId" -ForegroundColor Cyan
-
-az postgres flexible-server ad-admin create `
-    --resource-group $ResourceGroupName `
-    --server-name $pgServerName `
-    --display-name $uaiName `
-    --object-id $uaiPrincipalId `
-    --type ServicePrincipal
-
-if ($LASTEXITCODE -eq 0) {
-    Write-Host "PostgreSQL Entra admin configured successfully" -ForegroundColor Green
-} else {
-    Write-Host "Warning: PostgreSQL Entra admin setup failed. Run manually if needed:" -ForegroundColor Yellow
-    Write-Host "  az postgres flexible-server ad-admin create --resource-group $ResourceGroupName --server-name $pgServerName --display-name $uaiName --object-id $uaiPrincipalId --type ServicePrincipal" -ForegroundColor Cyan
-}
-
-Write-Host ""
 Write-Host "==========================================" -ForegroundColor Green
 Write-Host "Infrastructure Details" -ForegroundColor Green
 Write-Host "==========================================" -ForegroundColor Green
@@ -126,11 +99,15 @@ Write-Host "PostgreSQL Hostname: $($outputs.postgresqlHostname.value)"
 Write-Host "Container Registry Login Server: $($outputs.containerRegistryLoginServer.value)"
 Write-Host "Container App Environment: $($outputs.containerAppEnvironmentName.value)"
 Write-Host "Database Name: $($outputs.databaseName.value)"
-Write-Host "UAI Client ID: $uaiClientId"
 Write-Host ""
 Write-Host "Subnet IDs:" -ForegroundColor Cyan
 Write-Host "  PostgreSQL Subnet: $($outputs.postgresSubnetId.value)"
 Write-Host "  Container App Subnet: $($outputs.containerAppSubnetId.value)"
+Write-Host ""
+Write-Host "Next Steps:" -ForegroundColor Yellow
+Write-Host "  1. Deploy Container Apps"
+Write-Host "  2. Configure GitHub Actions for CI/CD"
+Write-Host ""
 Write-Host ""
 Write-Host "==========================================" -ForegroundColor Green
 Write-Host "Deployment Completed!" -ForegroundColor Green

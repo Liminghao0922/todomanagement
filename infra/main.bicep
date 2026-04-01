@@ -153,6 +153,24 @@ resource fwRule 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2024-08
   }
 }
 
+// Configure User Assigned Identity as PostgreSQL Entra Admin
+// Uses a separate module to pass principalId as a parameter,
+// avoiding Bicep BCP120 (runtime value cannot be used as resource name directly)
+module postgresAdminModule './postgres-admin.bicep' = {
+  name: 'postgres-admin-deployment'
+  params: {
+    postgresServerName: postgresServerName
+    principalId: userAssignedIdentity.properties.principalId
+    principalName: userAssignedIdentity.name
+    tenantId: subscription().tenantId
+  }
+  dependsOn: [
+    fwRule
+    database
+    postgresqlConfig
+  ]
+}
+
 // Azure Container Registry
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
   name: containerRegistryName
