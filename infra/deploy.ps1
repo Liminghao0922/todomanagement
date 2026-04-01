@@ -103,6 +103,7 @@ Write-Host "==========================================" -ForegroundColor Green
 Write-Host "PostgreSQL Server: $($outputs.postgresqlServerName.value)"
 Write-Host "PostgreSQL Hostname: $($outputs.postgresqlHostname.value)"
 Write-Host "Container Registry Login Server: $($outputs.containerRegistryLoginServer.value)"
+Write-Host "Container Registry Name: $($outputs.containerRegistryName.value)"
 Write-Host "Container App Environment: $($outputs.containerAppEnvironmentName.value)"
 Write-Host "Database Name: $($outputs.databaseName.value)"
 Write-Host "API_URL: $($outputs.containerAppApiUrl.value)"

@@ -26,6 +26,18 @@ class Settings(BaseSettings):
     # API
     api_title: str = "Todo Management API"
     api_version: str = "2.0.0"
+
+    @property
+    def cors_allowed_origins(self) -> list[str]:
+        """Return normalized CORS allowlist from CORS_ALLOWED_ORIGINS env var."""
+        raw_value = os.getenv("CORS_ALLOWED_ORIGINS", "*")
+        origins = [origin.strip() for origin in raw_value.split(",") if origin.strip()]
+        return origins or ["*"]
+
+    @property
+    def cors_allow_credentials(self) -> bool:
+        """Wildcard origins cannot be used with credentials in browser CORS checks."""
+        return "*" not in self.cors_allowed_origins
     
     def get_database_token(self) -> str:
         """Get Entra ID token for PostgreSQL authentication"""

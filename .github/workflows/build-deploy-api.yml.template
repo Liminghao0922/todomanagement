@@ -54,5 +54,6 @@ jobs:
                         POSTGRES_SERVER="${{ vars.POSTGRES_SERVER }}" \
                         POSTGRES_DB="${{ vars.POSTGRES_DB }}" \
                         POSTGRES_USER="${{ vars.POSTGRES_USER }}" \
-                        DATABASE_TYPE="postgresql" \
+                        DATABASE_TYPE="${{ vars.DATABASE_TYPE }}" \
+                        CORS_ALLOWED_ORIGINS="*" \
                         ENVIRONMENT="production"

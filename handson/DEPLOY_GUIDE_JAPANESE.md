@@ -417,6 +417,9 @@ git commit -m "Enable GitHub Actions workflows and configure infrastructure para
 
 # メインブランチにプッシュ
 git push origin main
+
+# ユーザー名とPATを入力し、Pushを完了する
+
 ```
 
 確認：
@@ -513,7 +516,7 @@ https://todomanagement-web.abc123def.japaneast.azurecontainerapps.io
 
 ---
 
-## Step 1️⃣2️⃣ トラブルシューティング
+## Step 1️⃣1️⃣ トラブルシューティング
 
 ### 問題: Web にアクセスできない
 

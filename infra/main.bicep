@@ -333,7 +333,7 @@ resource containerAppApi 'Microsoft.App/containerApps@2024-03-01' = {
     managedEnvironmentId: containerAppEnvironment.id
     configuration: {
       ingress: {
-        external: false
+        external: true
         targetPort: 80
         transport: 'auto'
         allowInsecure: false
