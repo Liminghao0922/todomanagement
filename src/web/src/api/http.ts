@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
 
-const baseURL = import.meta.env.VITE_API_BASE_URL || '/api'
+const baseURL = import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : '/api'
 
 // 将 snake_case 转换为 camelCase
 function toCamelCase(obj: any): any {

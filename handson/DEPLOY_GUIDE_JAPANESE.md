@@ -246,14 +246,14 @@ Cloud Shell で以下を実行：
 ```powershell
 # 変数を設定
 $subscriptionId = $(az account show --query id -o tsv)
-$resourceGroup = "rg-todomanagement-dev"
+$resourceGroupName = "<your resource group name>"
 $spName = "github-todomanagement-ci"
 
 # Service Principal を作成
 $sp = az ad sp create-for-rbac `
   --name $spName `
   --role "Contributor" `
-  --scopes "/subscriptions/$subscriptionId/resourceGroups/$resourceGroup" `
+  --scopes "/subscriptions/$subscriptionId/resourceGroups/$resourceGroupName" `
   --json-auth | ConvertFrom-Json
 
 # JSON 形式で出力（後で使用）
@@ -279,9 +279,12 @@ $sp | ConvertTo-Json
 ### 7.1 GitHub リポジトリの Settings を開く
 
 1. GitHub リポジトリのページを開く
-2. **Settings** → **Secrets and variables** → **Secrets** をクリック
+2. **Settings** → **Secrets and variables** → **Actions** をクリック
+   ![1775016195315](images/DEPLOY_GUIDE_JAPANESE/1775016195315.png)
 
 ### 7.2 Secret を追加
+
+**New repository secret** をクリック
 
 **Name**: `AZURE_CREDENTIALS`
 **Value**: Step 6.1 でコピーした JSON 全体をペースト
@@ -295,6 +298,10 @@ $sp | ConvertTo-Json
   ...
 }
 ```
+
+**Add secret** をクリック
+
+![1775017571109](images/DEPLOY_GUIDE_JAPANESE/1775017571109.png)
 
 ### 7.3 Variables を追加
 
@@ -331,9 +338,58 @@ $sp | ConvertTo-Json
 
 ---
 
-## Step 8️⃣ コードをコミット・プッシュ
+## Step 8️⃣ GitHub Actions Workflow ファイルをコピー・有効化
 
-### 8.1 設定ファイルを修正（ローカル）
+### 8.1 Workflow テンプレートファイルをコピー
+
+このテンプレートリポジトリでは、CI/CD Workflow ファイルが `.template` 後缀を持っています。
+これは、テンプレートリポジトリ自身では Workflow が **自動実行されないようにするため**です。
+
+**必要な操作**：
+
+ローカルマシンで以下のコマンドを実行してください：
+
+```bash
+# Workflow ファイルをコピーして、テンプレートサフィックスを削除
+cp .github/workflows/build-deploy-web.yml.template .github/workflows/build-deploy-web.yml
+cp .github/workflows/build-deploy-api.yml.template .github/workflows/build-deploy-api.yml
+
+# コピーが成功したか確認
+ls -la .github/workflows/
+
+# 出力例：
+# build-deploy-web.yml
+# build-deploy-web.yml.template
+# build-deploy-api.yml
+# build-deploy-api.yml.template
+```
+
+**Windows PowerShell 版**：
+
+```powershell
+# Workflow ファイルをコピー
+Copy-Item ".github/workflows/build-deploy-web.yml.template" ".github/workflows/build-deploy-web.yml"
+Copy-Item ".github/workflows/build-deploy-api.yml.template" ".github/workflows/build-deploy-api.yml"
+
+# コピー確認
+Get-ChildItem ".github/workflows/"
+```
+
+### 8.2 なぜテンプレート化しているのか？
+
+- ✅ **テンプレートリポジトリ上での誤実行防止**
+  - テンプレートリポジトリ自体は Workflow を実行しない
+  - ユーザーが明示的にコピーしてから実行される
+- ✅ **ユーザーの意識的な操作**
+  - ユーザーが自分で Workflow を有効化することで理解が深まる
+- ✅ **カスタマイズの自由度**
+  - ユーザーが必要に応じて Workflow を修正してからコミット可能
+
+---
+
+## Step 9️⃣ コードをコミット・プッシュ
+
+### 9.1 設定ファイルを修正（ローカル）
 
 ローカルマシンで以下を実行：
 
@@ -350,14 +406,14 @@ git status
 #   modified: infra/parameters.json
 ```
 
-### 8.2 コミット・プッシュ
+### 9.2 コミット・プッシュ
 
 ```bash
-# 変更をステージング
+# 変更をステージング（Workflow ファイルと設定ファイル含む）
 git add .
 
 # コミット
-git commit -m "Configure infrastructure parameters and GitHub Actions variables"
+git commit -m "Enable GitHub Actions workflows and configure infrastructure parameters"
 
 # メインブランチにプッシュ
 git push origin main
@@ -373,16 +429,16 @@ git log --oneline
 
 ---
 
-## Step 9️⃣ GitHub Actions で自動デプロイ
+## Step 🔟 GitHub Actions で自動デプロイ
 
-### 9.1 Workflow の実行を確認
+### 🔟.1 Workflow の実行を確認
 
 1. GitHub リポジトリのページから **Actions** タブをクリック
 2. 以下のワークフローが表示されます：
    - `Build and Deploy API to ACR`
    - `Build and Deploy Web to ACR`
 
-### 9.2 Workflow の自動実行を待つ
+### 🔟.2 Workflow の自動実行を待つ
 
 **トリガー条件**：
 
@@ -390,7 +446,7 @@ git log --oneline
 - `src/api/` または `.github/workflows/build-deploy-api.yml` が変更された場合 → API ワークフロー実行
 - `src/web/` または `.github/workflows/build-deploy-web.yml` が変更された場合 → Web ワークフロー実行
 
-### 9.3 実行状況を確認
+### 🔟.3 実行状況を確認
 
 ```
 Actions ページで以下を確認：
@@ -404,7 +460,7 @@ Actions ページで以下を確認：
 
 **所要時間**：API & Web で各 5～10 分
 
-### 9.4 Workflow が失敗した場合
+### 🔟.4 Workflow が失敗した場合
 
 ❌ エラーが表示された場合：
 
@@ -418,9 +474,9 @@ Actions ページで以下を確認：
 
 ---
 
-## Step 🔟 Web アプリケーションにアクセス
+## Step 1️⃣1️⃣ Web アプリケーションにアクセス
 
-### 🔟.1 Container App URL を取得
+### 1️⃣1️⃣.1 Container App URL を取得
 
 Cloud Shell で実行：
 
@@ -442,13 +498,13 @@ az containerapp show `
 https://todomanagement-web.abc123def.japaneast.azurecontainerapps.io
 ```
 
-### 🔟.2 ブラウザでアクセス
+### 1️⃣1️⃣.2 ブラウザでアクセス
 
 1. 上記 URL をブラウザのアドレスバーにコピー・ペースト
 2. **Enter** キーを押す
 3. Todo Management アプリケーションが表示されます ✅
 
-### 🔟.3 機能を確認
+### 1️⃣1️⃣.3 機能を確認
 
 - **🔐 Login ボタン**をクリック
 - Microsoft/Azure AD で認証
@@ -457,7 +513,7 @@ https://todomanagement-web.abc123def.japaneast.azurecontainerapps.io
 
 ---
 
-## Step 1️⃣1️⃣ トラブルシューティング
+## Step 1️⃣2️⃣ トラブルシューティング
 
 ### 問題: Web にアクセスできない
 
