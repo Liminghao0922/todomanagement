@@ -112,6 +112,7 @@ Write-Host ""
 Write-Host "Web App Authentication:" -ForegroundColor Cyan
 Write-Host "  AZURE_CLIENT_ID: $($outputs.appRegistrationAppId.value)"
 Write-Host "  AZURE_TENANT_ID: $($outputs.azureTenantId.value)"
+Write-Host "  USER_ASSIGNED_IDENTITY_CLIENT_ID: $($outputs.userAssignedIdentityClientId.value)"
 Write-Host ""
 Write-Host "Subnet IDs:" -ForegroundColor Cyan
 Write-Host "  PostgreSQL Subnet: $($outputs.postgresSubnetId.value)"

@@ -246,13 +246,12 @@ Cloud Shell で以下を実行：
 ```powershell
 # 変数を設定
 $subscriptionId = $(az account show --query id -o tsv)
-$resourceGroupName = "<your resource group name>"
 $spName = "github-todomanagement-ci"
 
 # Service Principal を作成
 $sp = az ad sp create-for-rbac `
   --name $spName `
-  --role "Contributor" `
+  --role "Owner" `
   --scopes "/subscriptions/$subscriptionId/resourceGroups/$resourceGroupName" `
   --json-auth | ConvertFrom-Json
 
@@ -351,6 +350,7 @@ $sp | ConvertTo-Json
 
 ```bash
 # Workflow ファイルをコピーして、テンプレートサフィックスを削除
+cd ..
 cp .github/workflows/build-deploy-web.yml.template .github/workflows/build-deploy-web.yml
 cp .github/workflows/build-deploy-api.yml.template .github/workflows/build-deploy-api.yml
 
