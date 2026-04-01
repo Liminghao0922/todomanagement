@@ -298,7 +298,9 @@ $sp | ConvertTo-Json
 
 ### 7.3 Variables を追加
 
-**Settings** → **Secrets and variables** → **Variables** をクリック
+**Settings** → **Secrets and variables** → **Actions** をクリック
+
+![1775016195315](images/DEPLOY_GUIDE_JAPANESE/1775016195315.png)
 
 以下の Variables を追加します：
 
@@ -319,10 +321,13 @@ $sp | ConvertTo-Json
 
 **追加方法**：
 
-1. **New repository variable** をクリック
-2. **Name** に変数名を入力
-3. **Value** に値を入力
-4. **Add variable** をクリック
+1. **Variables** タブをクリック
+2. **New repository variable** をクリック
+3. **Name** に変数名を入力
+4. **Value** に値を入力
+5. **Add variable** をクリック
+
+![1775016383501](images/DEPLOY_GUIDE_JAPANESE/1775016383501.png)
 
 ---
 

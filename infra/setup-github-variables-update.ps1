@@ -15,9 +15,6 @@ param(
     [string]$AzureTenantId,  # Azure 租户 ID
     
     [Parameter(Mandatory=$false)]
-    [string]$RedirectUri,  # OAuth 重定向 URI（web 应用 URL）
-    
-    [Parameter(Mandatory=$false)]
     [string]$ApiBaseUrl,  # API 服务基础 URL
 
     [Parameter(Mandatory=$false)]
@@ -38,20 +35,14 @@ if (-not $AzureTenantId) {
     $AzureTenantId = Read-Host "   输入 AZURE_TENANT_ID"
 }
 
-if (-not $RedirectUri) {
-    Write-Host "`n3. OAuth 重定向 URI（部署后的 web 应用完整 URL）"
-    Write-Host "   示例：https://todomanagement-web.xxxxxxx.japaneast.azurecontainerapps.io"
-    $RedirectUri = Read-Host "   输入 AZURE_REDIRECT_URI"
-}
-
 if (-not $ApiBaseUrl) {
-    Write-Host "`n4. API 服务基础 URL"
+    Write-Host "`n3. API 服务基础 URL"
     Write-Host "   示例：https://todomanagement-api.xxxxxxx.japaneast.azurecontainerapps.io"
     $ApiBaseUrl = Read-Host "   输入 API_BASE_URL"
 }
 
 if (-not $UserAssignedIdentityClientId) {
-    Write-Host "`n5. 用户分配托管标识 Client ID"
+    Write-Host "`n4. 用户分配托管标识 Client ID"
     Write-Host "   获取位置：Azure Portal → 你的资源组 → 托管标识 → 选择用户分配的标识 → 复制客户端 ID"
     $UserAssignedIdentityClientId = Read-Host "   输入 USER_ASSIGNED_IDENTITY_CLIENT_ID"
 }
@@ -71,7 +62,6 @@ Write-Host "=" * 60
 Write-Host "Repository: $GitHubRepo"
 Write-Host "VITE_AZURE_CLIENT_ID: $AzureClientId"
 Write-Host "AZURE_TENANT_ID: $AzureTenantId"
-Write-Host "AZURE_REDIRECT_URI: $RedirectUri"
 Write-Host "API_BASE_URL: $ApiBaseUrl"
 Write-Host "USER_ASSIGNED_IDENTITY_CLIENT_ID: $UserAssignedIdentityClientId"
 Write-Host "=" * 60
@@ -94,7 +84,6 @@ if ($GitHubToken) {
     $variables = @(
         @{ name = "AZURE_CLIENT_ID"; value = $AzureClientId }
         @{ name = "AZURE_TENANT_ID"; value = $AzureTenantId }
-        @{ name = "AZURE_REDIRECT_URI"; value = $RedirectUri }
         @{ name = "API_BASE_URL"; value = $ApiBaseUrl }
         @{ name = "USER_ASSIGNED_IDENTITY_CLIENT_ID"; value = $UserAssignedIdentityClientId }
     )
@@ -133,7 +122,6 @@ if ($GitHubToken) {
     Write-Host "   |---|---|"
     Write-Host "   | AZURE_CLIENT_ID | $AzureClientId |"
     Write-Host "   | AZURE_TENANT_ID | $AzureTenantId |"
-    Write-Host "   | AZURE_REDIRECT_URI | $RedirectUri |"
     Write-Host "   | API_BASE_URL | $ApiBaseUrl |"
     Write-Host "   | USER_ASSIGNED_IDENTITY_CLIENT_ID | $UserAssignedIdentityClientId |"
 }

@@ -108,13 +108,16 @@ Write-Host "Database Name: $($outputs.databaseName.value)"
 Write-Host "API_URL: $($outputs.containerAppApiUrl.value)"
 Write-Host "WEB_URL: $($outputs.containerAppWebUrl.value)"
 Write-Host ""
+Write-Host "Web App Authentication:" -ForegroundColor Cyan
+Write-Host "  AZURE_CLIENT_ID: $($outputs.appRegistrationAppId.value)"
+Write-Host "  AZURE_TENANT_ID: $($outputs.azureTenantId.value)"
+Write-Host ""
 Write-Host "Subnet IDs:" -ForegroundColor Cyan
 Write-Host "  PostgreSQL Subnet: $($outputs.postgresSubnetId.value)"
 Write-Host "  Container App Subnet: $($outputs.containerAppSubnetId.value)"
 Write-Host ""
 Write-Host "Next Steps:" -ForegroundColor Yellow
-Write-Host "  1. Deploy Container Apps"
-Write-Host "  2. Configure GitHub Actions for CI/CD"
+Write-Host "  1. Configure GitHub Actions for CI/CD"
 Write-Host ""
 Write-Host ""
 Write-Host "==========================================" -ForegroundColor Green

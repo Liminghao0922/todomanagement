@@ -1,5 +1,6 @@
-﻿metadata description = 'Azure Infrastructure for Todo Management App with PostgreSQL and Container Apps'
+﻿extension microsoftGraphV1
 
+metadata description = 'Azure Infrastructure for Todo Management App with PostgreSQL and Container Apps'
 param location string = 'japaneast'
 param environment string = 'dev'
 param projectName string = 'todomanagement'
@@ -24,6 +25,7 @@ var privateEndpointSubnetName = 'subnet-pe-${environment}'
 var postgresServerName = 'postgres-${projectName}-${uniqueString(resourceGroup().id)}'
 var containerRegistryName = 'acr${projectName}${uniqueString(resourceGroup().id)}'
 var containerAppEnvName = 'cae-${projectName}-${environment}'
+var appName = 'app-${projectName}${uniqueString(resourceGroup().id)}'
 var databaseName = 'tododb'
 
 // Create Virtual Network
@@ -273,12 +275,14 @@ resource acrPullRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-
   scope: containerRegistry
   name: guid(containerRegistry.id, userAssignedIdentity.id, 'AcrPull')
   properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
+    roleDefinitionId: subscriptionResourceId(
+      'Microsoft.Authorization/roleDefinitions',
+      '7f951dda-4ed3-4680-a7ca-43fe172d538d'
+    )
     principalId: userAssignedIdentity.properties.principalId
     principalType: 'ServicePrincipal'
   }
 }
-
 
 // Create Log Analytics Workspace for Container App Environment
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
@@ -459,6 +463,29 @@ resource postgresqlConfig 'Microsoft.DBforPostgreSQL/flexibleServers/configurati
   }
 }
 
+//create app registration for web app logins
+resource appRegistration 'Microsoft.Graph/applications@v1.0' = {
+  uniqueName: appName
+  displayName: 'App Registration for ${projectName} ${environment}'
+  signInAudience: 'AzureADMyOrg'
+  requiredResourceAccess: [
+		{
+			resourceAppId: '00000003-0000-0000-c000-000000000000' // Microsoft Graph
+			resourceAccess: [
+				{
+					id: 'e1fe6dd8-ba31-4d61-89e7-88639da4683d' // User.Read
+					type: 'Scope'
+				}
+			]
+		}
+	]
+  spa: {
+    redirectUris: [
+      'https://${containerAppWeb.properties.configuration.ingress.fqdn}/'
+    ]
+  }
+}
+
 // Output important values
 output vnetId string = vnet.id
 output postgresqlServerId string = postgresqlServer.id
@@ -484,3 +511,5 @@ output containerAppApiUrl string = 'https://${containerAppApi.properties.configu
 output containerAppWebId string = containerAppWeb.id
 output containerAppWebName string = containerAppWeb.name
 output containerAppWebUrl string = 'https://${containerAppWeb.properties.configuration.ingress.fqdn}'
+output appRegistrationAppId string = appRegistration.appId
+output azureTenantId string = subscription().tenantId
