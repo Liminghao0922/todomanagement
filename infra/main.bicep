@@ -153,22 +153,6 @@ resource fwRule 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2024-08
   }
 }
 
-// Configure User Assigned Identity as PostgreSQL Entra Admin
-resource postgresAdmin 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@2024-08-01' = {
-  parent: postgresqlServer
-  name: guid(userAssignedIdentity.id, 'administrators')
-  properties: {
-    principalType: 'ServicePrincipal'
-    tenantId: subscription().tenantId
-    principalName: userAssignedIdentity.name
-  }
-  dependsOn: [
-    fwRule
-    database
-    postgresqlConfig
-  ]
-}
-
 // Azure Container Registry
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
   name: containerRegistryName
