@@ -466,7 +466,7 @@ resource postgresqlConfig 'Microsoft.DBforPostgreSQL/flexibleServers/configurati
 //create app registration for web app logins
 resource appRegistration 'Microsoft.Graph/applications@v1.0' = {
   uniqueName: appName
-  displayName: 'App Registration for ${projectName} ${environment}'
+  displayName: appName
   signInAudience: 'AzureADMyOrg'
   requiredResourceAccess: [
 		{
