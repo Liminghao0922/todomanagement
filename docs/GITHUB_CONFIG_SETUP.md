@@ -15,6 +15,7 @@ Repository Variables位置：**Settings** → **Secrets and variables** → **Va
 | `ACR_NAME` | `acrtodomanagementvkql5e2kbh2na` | Azure Container Registry的短名称 |
 | `RESOURCE_GROUP` | `rg-todomanagement-dev` | 部署目标的Azure资源组 |
 | `POSTGRES_SERVER` | `postgres-todomanagement-xxxxx.postgres.database.azure.com` | PostgreSQL 服务器完整域名 |
+| `DATABASE_TYPE` | `postgresql` | 强制API使用PostgreSQL（避免回退到SQLite） |
 | `POSTGRES_DB` | `tododb` | PostgreSQL 数据库名称 |
 | `POSTGRES_USER` | (Entra ID user/app) | 授予 PostgreSQL 权限的 Entra ID 身份 |
 | `AZURE_CLIENT_ID` | (Azure Entra ID应用ID) | Web应用的Azure Entra ID应用客户端ID |

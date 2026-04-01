@@ -82,11 +82,17 @@ Write-Host ""
 # Step 3: Retrieve deployment outputs
 Write-Host "[3/3] Retrieving deployment outputs..." -ForegroundColor Yellow
 
-$deployments = az deployment group list `
+$outputsJson = az deployment group show `
+    --name $deploymentName `
     --resource-group $ResourceGroupName `
-    --query "[0]" | ConvertFrom-Json
+    --query "properties.outputs" `
+    -o json
 
-$outputs = $deployments.properties.outputs
+if (-not $outputsJson -or $outputsJson -eq "null") {
+    throw "Failed to retrieve deployment outputs for deployment '$deploymentName'."
+}
+
+$outputs = $outputsJson | ConvertFrom-Json
 
 Write-Host "Deployment successful!" -ForegroundColor Green
 Write-Host ""
@@ -99,6 +105,8 @@ Write-Host "PostgreSQL Hostname: $($outputs.postgresqlHostname.value)"
 Write-Host "Container Registry Login Server: $($outputs.containerRegistryLoginServer.value)"
 Write-Host "Container App Environment: $($outputs.containerAppEnvironmentName.value)"
 Write-Host "Database Name: $($outputs.databaseName.value)"
+Write-Host "API_URL: $($outputs.containerAppApiUrl.value)"
+Write-Host "WEB_URL: $($outputs.containerAppWebUrl.value)"
 Write-Host ""
 Write-Host "Subnet IDs:" -ForegroundColor Cyan
 Write-Host "  PostgreSQL Subnet: $($outputs.postgresSubnetId.value)"

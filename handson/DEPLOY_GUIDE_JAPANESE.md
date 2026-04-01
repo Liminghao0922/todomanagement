@@ -186,23 +186,16 @@ $json | ConvertTo-Json | Set-Content infra/parameters.json
 
 ## Step 5️⃣ インフラストラクチャをデプロイ
 
-### 5.1 リソースグループを作成
+### 5.1 変数を設定
 
 ```powershell
 # 変数を設定
 $resourceGroupName = "rg-todomanagement-handson001"
 $location = "japaneast"
 
-# リソースグループを作成
-az group create `
-  --name $resourceGroupName `
-  --location $location
-
-# 確認
-az group list --output table
 ```
 
-### 5.2 デプロイスクリプトを実行 （**所要時間**：）
+### 5.2 デプロイスクリプトを実行 （**所要時間**： 10 min~20min）
 
 ```powershell
 # infra ディレクトリに移動
@@ -315,6 +308,7 @@ $sp | ConvertTo-Json
 | `ACR_NAME`                         | `acrtodomanagementxxxxx`        | デプロイ出力から取得  |
 | `RESOURCE_GROUP`                   | `rg-todomanagement-dev`         | デプロイ出力から取得  |
 | `POSTGRES_SERVER`                  | `postgres-todomanagement-xxxxx` | デプロイ出力から取得  |
+| `DATABASE_TYPE`                    | `postgresql`                    | PostgreSQL を強制使用 |
 | `POSTGRES_DB`                      | `tododb`                        | デフォルト            |
 | `POSTGRES_USER`                    | `postgres`                      | デフォルト            |
 | `AZURE_CLIENT_ID`                  | `[Entra ID App ID]`             | Azure Portal から取得 |
@@ -514,7 +508,7 @@ app.add_middleware(
 - [ ]  .env ファイルを設定
 - [ ]  Service Principal を作成
 - [ ]  GitHub Secrets に `AZURE_CREDENTIALS` を追加
-- [ ]  GitHub Variables を 9 個追加
+- [ ]  GitHub Variables を 10 個追加
 - [ ]  `git commit` と `git push`
 - [ ]  GitHub Actions が正常に実行
 - [ ]  Web アプリにアクセス可能
