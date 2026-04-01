@@ -15,11 +15,18 @@ param(
     [string]$AzureTenantId,  # Azure 租户 ID
     
     [Parameter(Mandatory=$false)]
-    [string]$ApiBaseUrl,  # API 服务基础 URL
+    [string]$ApiBaseUrl,  # 兼容旧参数
+
+    [Parameter(Mandatory=$false)]
+    [string]$ApiProxyTarget,  # Web 反向代理的上游 API URL
 
     [Parameter(Mandatory=$false)]
     [string]$UserAssignedIdentityClientId  # 用户分配托管标识 Client ID
 )
+
+if (-not $ApiProxyTarget -and $ApiBaseUrl) {
+    $ApiProxyTarget = $ApiBaseUrl
+}
 
 # 如果未提供所有参数，进行交互式提示
 if (-not $AzureClientId) {
@@ -35,10 +42,10 @@ if (-not $AzureTenantId) {
     $AzureTenantId = Read-Host "   输入 AZURE_TENANT_ID"
 }
 
-if (-not $ApiBaseUrl) {
-    Write-Host "`n3. API 服务基础 URL"
+if (-not $ApiProxyTarget) {
+    Write-Host "`n3. API 代理上游 URL"
     Write-Host "   示例：https://todomanagement-api.xxxxxxx.japaneast.azurecontainerapps.io"
-    $ApiBaseUrl = Read-Host "   输入 API_BASE_URL"
+    $ApiProxyTarget = Read-Host "   输入 API_PROXY_TARGET"
 }
 
 if (-not $UserAssignedIdentityClientId) {
@@ -62,7 +69,7 @@ Write-Host "=" * 60
 Write-Host "Repository: $GitHubRepo"
 Write-Host "VITE_AZURE_CLIENT_ID: $AzureClientId"
 Write-Host "AZURE_TENANT_ID: $AzureTenantId"
-Write-Host "API_BASE_URL: $ApiBaseUrl"
+Write-Host "API_PROXY_TARGET: $ApiProxyTarget"
 Write-Host "USER_ASSIGNED_IDENTITY_CLIENT_ID: $UserAssignedIdentityClientId"
 Write-Host "=" * 60
 
@@ -84,7 +91,7 @@ if ($GitHubToken) {
     $variables = @(
         @{ name = "AZURE_CLIENT_ID"; value = $AzureClientId }
         @{ name = "AZURE_TENANT_ID"; value = $AzureTenantId }
-        @{ name = "API_BASE_URL"; value = $ApiBaseUrl }
+        @{ name = "API_PROXY_TARGET"; value = $ApiProxyTarget }
         @{ name = "USER_ASSIGNED_IDENTITY_CLIENT_ID"; value = $UserAssignedIdentityClientId }
     )
     
@@ -122,7 +129,7 @@ if ($GitHubToken) {
     Write-Host "   |---|---|"
     Write-Host "   | AZURE_CLIENT_ID | $AzureClientId |"
     Write-Host "   | AZURE_TENANT_ID | $AzureTenantId |"
-    Write-Host "   | API_BASE_URL | $ApiBaseUrl |"
+    Write-Host "   | API_PROXY_TARGET | $ApiProxyTarget |"
     Write-Host "   | USER_ASSIGNED_IDENTITY_CLIENT_ID | $UserAssignedIdentityClientId |"
 }
 

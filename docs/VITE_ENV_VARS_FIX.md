@@ -63,15 +63,18 @@ RUN VITE_AZURE_CLIENT_ID=${VITE_AZURE_CLIENT_ID} \
       VITE_AZURE_CLIENT_ID=${{ vars.AZURE_CLIENT_ID }}
       VITE_AZURE_AUTHORITY=https://login.microsoftonline.com/${{ vars.AZURE_TENANT_ID }}
       VITE_AZURE_REDIRECT_URI=${{ vars.AZURE_REDIRECT_URI }}
-      VITE_API_BASE_URL=${{ vars.API_BASE_URL }}
+            VITE_API_BASE_URL=/api
 ```
 
 ### 3. Container App 运行时
-移除 `VITE_*` 变量（这些在编译时已经嵌入），只保留运行时需要的变量：
+
+移除运行时无效的 `VITE_*` 注入，只保留 Web 反向代理需要的变量：
 
 ```yaml
---env-vars USER_ASSIGNED_IDENTITY_CLIENT_ID="${{ vars.USER_ASSIGNED_IDENTITY_CLIENT_ID }}"
+--env-vars API_PROXY_TARGET="${{ vars.API_PROXY_TARGET }}" USER_ASSIGNED_IDENTITY_CLIENT_ID="${{ vars.USER_ASSIGNED_IDENTITY_CLIENT_ID }}"
 ```
+
+这里的 `API_PROXY_TARGET` 指向 internal API Container App 的 ingress URL，而浏览器仍然只访问同源 `/api`。
 
 ## 🚀 部署步骤
 

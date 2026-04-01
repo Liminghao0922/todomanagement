@@ -20,7 +20,7 @@ AADSTS700038: 00000000-0000-0000-0000-000000000000 is not a valid application id
 | `AZURE_CLIENT_ID` | Web 应用的 Entra ID 应用 Client ID | `12345678-1234-1234-1234-123456789abc` |
 | `AZURE_TENANT_ID` | Azure 租户 ID | `87654321-4321-4321-4321-abcdef123456` |
 | `AZURE_REDIRECT_URI` | OAuth 重定向 URI（web 应用 URL） | `https://todomanagement-web.abc123.japaneast.azurecontainerapps.io` |
-| `API_BASE_URL` | API 服务的基础 URL | `https://todomanagement-api.abc123.japaneast.azurecontainerapps.io` |
+| `API_PROXY_TARGET` | Web 容器代理到 internal API 的上游地址 | `https://todomanagement-api.abc123.japaneast.azurecontainerapps.io` |
 | `USER_ASSIGNED_IDENTITY_CLIENT_ID` | 用户分配托管标识 Client ID | `12345678-1234-1234-1234-111111111111` |
 
 ### 第2步：获取这些值
@@ -61,14 +61,14 @@ AADSTS700038: 00000000-0000-0000-0000-000000000000 is not a valid application id
    - **Authentication** → **Platform configurations** → **Single-page application**
    - 添加 Redirect URI
 
-#### 获取 API_BASE_URL
+#### 获取 API_PROXY_TARGET
 
 类似地，部署 API Container App 后：
 ```powershell
 # 方法1：使用 Azure CLI
 az containerapp show -n todomanagement-api -g rg-todomanagement-dev --query properties.configuration.ingress.fqdn -o tsv
 
-# 然后得到 API_BASE_URL = https://<fqdn>
+# 然后得到 API_PROXY_TARGET = https://<fqdn>
 ```
 
 #### 获取 USER_ASSIGNED_IDENTITY_CLIENT_ID
@@ -107,7 +107,7 @@ $token = "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"  # GitHub Personal Access Token
   -AzureClientId "12345678-..." `
   -AzureTenantId "87654321-..." `
   -RedirectUri "https://todomanagement-web.abc.azurecontainerapps.io" `
-  -ApiBaseUrl "https://todomanagement-api.abc.azurecontainerapps.io" `
+   -ApiProxyTarget "https://todomanagement-api.abc.azurecontainerapps.io" `
   -UserAssignedIdentityClientId "12345678-..."
 ```
 
@@ -137,8 +137,8 @@ $token = "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"  # GitHub Personal Access Token
    - Value: (部署后的 web 应用完整 URL，例如 https://todomanagement-web.xxxxx.japaneast.azurecontainerapps.io)
    
    **Variable 4:**
-   - Name: `API_BASE_URL`
-   - Value: (API 应用的完整 URL，例如 https://todomanagement-api.xxxxx.japaneast.azurecontainerapps.io)
+   - Name: `API_PROXY_TARGET`
+   - Value: (API 应用的完整 internal URL，例如 https://todomanagement-api.xxxxx.japaneast.azurecontainerapps.io)
    
    **Variable 5:**
    - Name: `USER_ASSIGNED_IDENTITY_CLIENT_ID`
@@ -158,7 +158,7 @@ gh variable list -R your-org/todomanagement
 # AZURE_CLIENT_ID                         12345678-1234-1234-1234-123456789abc
 # AZURE_TENANT_ID                         87654321-4321-4321-4321-abcdef123456
 # AZURE_REDIRECT_URI                      https://todomanagement-web.xxxxx.azurecontainerapps.io
-# API_BASE_URL                            https://todomanagement-api.xxxxx.azurecontainerapps.io
+# API_PROXY_TARGET                        https://todomanagement-api.xxxxx.azurecontainerapps.io
 # USER_ASSIGNED_IDENTITY_CLIENT_ID        12345678-1234-1234-1234-111111111111
 ```
 

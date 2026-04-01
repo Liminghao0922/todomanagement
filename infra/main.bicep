@@ -333,7 +333,7 @@ resource containerAppApi 'Microsoft.App/containerApps@2024-03-01' = {
     managedEnvironmentId: containerAppEnvironment.id
     configuration: {
       ingress: {
-        external: true
+        external: false
         targetPort: 80
         transport: 'auto'
         allowInsecure: false
@@ -420,7 +420,11 @@ resource containerAppWeb 'Microsoft.App/containerApps@2024-03-01' = {
           env: [
             {
               name: 'VITE_API_BASE_URL'
-              value: ''
+              value: '/api'
+            }
+            {
+              name: 'API_PROXY_TARGET'
+              value: 'https://${containerAppApi.properties.configuration.ingress.fqdn}'
             }
             {
               name: 'VITE_AZURE_CLIENT_ID'

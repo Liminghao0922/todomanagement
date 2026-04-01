@@ -1,6 +1,17 @@
 import axios, { AxiosInstance } from 'axios'
 
-const baseURL = import.meta.env.VITE_API_BASE_URL ? `${import.meta.env.VITE_API_BASE_URL}/api` : '/api'
+function resolveApiBaseUrl(rawBaseUrl?: string): string {
+  const baseUrl = rawBaseUrl?.trim()
+
+  if (!baseUrl || baseUrl === '/api') {
+    return '/api'
+  }
+
+  const normalizedBaseUrl = baseUrl.replace(/\/+$/, '')
+  return normalizedBaseUrl.endsWith('/api') ? normalizedBaseUrl : `${normalizedBaseUrl}/api`
+}
+
+const baseURL = resolveApiBaseUrl(import.meta.env.VITE_API_BASE_URL)
 
 // 将 snake_case 转换为 camelCase
 function toCamelCase(obj: any): any {

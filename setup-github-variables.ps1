@@ -18,6 +18,7 @@ $uaiId = $outputs.userAssignedIdentityId.value
 $postgresServer = $outputs.postgresqlServerName.value
 $postgresDb = $outputs.databaseName.value
 $postgresUser = "your-entra-id-user@postgres"  # Placeholder
+$apiProxyTarget = if ($outputs.containerAppApiUrl) { $outputs.containerAppApiUrl.value } else { "https://todomanagement-api.<region>.azurecontainerapps.io" }
 
 Write-Host ""
 Write-Host "Required GitHub Variables (use 'gh variable set' to add them):" -ForegroundColor Green
@@ -40,9 +41,9 @@ Write-Host ""
 Write-Host "6. USER_ASSIGNED_IDENTITY_ID"
 Write-Host "   Value: $uaiId"
 Write-Host ""
-Write-Host "7. API_BASE_URL"
-Write-Host "   Value: https://todomanagement-api.<region>.azurecontainerapps.io"
-Write-Host "   (Set after API Container App is deployed)"
+Write-Host "7. API_PROXY_TARGET"
+Write-Host "   Value: $apiProxyTarget"
+Write-Host "   (Web Container App will proxy /api to this internal API URL)"
 Write-Host ""
 Write-Host "8. AZURE_CLIENT_ID"
 Write-Host "   Value: (from your Entra ID app registration)"
@@ -61,4 +62,5 @@ Write-Host "gh variable set RESOURCE_GROUP --body ""rg-todomanagement-dev"""
 Write-Host "gh variable set POSTGRES_SERVER --body ""$postgresServer"""
 Write-Host "gh variable set POSTGRES_DB --body ""$postgresDb"""
 Write-Host "gh variable set USER_ASSIGNED_IDENTITY_ID --body ""$uaiId"""
+Write-Host "gh variable set API_PROXY_TARGET --body ""$apiProxyTarget"""
 Write-Host ""

@@ -21,7 +21,7 @@ Repository Variables位置：**Settings** → **Secrets and variables** → **Va
 | `AZURE_CLIENT_ID` | (Azure Entra ID应用ID) | Web应用的Azure Entra ID应用客户端ID |
 | `AZURE_TENANT_ID` | (你的Azure租户ID) | Azure租户ID |
 | `AZURE_REDIRECT_URI` | `https://your-domain.com` | OAuth重定向URI（部署后的web应用URL） |
-| `API_BASE_URL` | `https://api.your-domain.com` | API服务的基础URL |
+| `API_PROXY_TARGET` | `https://internal-api-fqdn` | Web Container App 反向代理的上游地址（internal API Container App URL） |
 | `USER_ASSIGNED_IDENTITY_CLIENT_ID` | (用户分配的托管标识Client ID) | Container App使用的用户分配托管标识ID |
 
 ### 设置步骤

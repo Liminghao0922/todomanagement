@@ -10,7 +10,7 @@ COPY package*.json ./
 RUN npm install --legacy-peer-deps
 
 # Copy source code
-COPY index.html vite.config.ts tsconfig.json tsconfig.node.json ./
+COPY env.d.ts index.html vite.config.ts tsconfig.json tsconfig.node.json ./
 COPY src ./src
 
 # Build parameters for Vite
@@ -26,23 +26,23 @@ RUN VITE_AZURE_CLIENT_ID=${VITE_AZURE_CLIENT_ID} \
     VITE_API_BASE_URL=${VITE_API_BASE_URL} \
     npm run build
 
-# Runtime stage - Use lightweight HTTP server
-FROM node:20-alpine
+# Runtime stage - Serve SPA and proxy /api to the internal backend
+FROM nginx:1.27-alpine
 
-WORKDIR /app
+RUN apk add --no-cache gettext
 
-# Install a lightweight HTTP server
-RUN npm install -g serve
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
+COPY docker-entrypoint.sh /docker-entrypoint.sh
 
-# Copy built application from builder
-COPY --from=builder /app/dist ./dist
+RUN chmod +x /docker-entrypoint.sh
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --quiet --tries=1 --spider http://localhost:3000 || exit 1
+  CMD wget --quiet --tries=1 --spider http://localhost/ || exit 1
 
 # Expose port
-EXPOSE 3000
+EXPOSE 80
 
 # Start the application
-CMD ["serve", "-s", "dist", "-l", "3000"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
