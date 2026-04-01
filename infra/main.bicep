@@ -1,4 +1,4 @@
-metadata description = 'Azure Infrastructure for Todo Management App with PostgreSQL and Container Apps'
+﻿metadata description = 'Azure Infrastructure for Todo Management App with PostgreSQL and Container Apps'
 
 param location string = 'japaneast'
 param environment string = 'dev'
@@ -162,6 +162,11 @@ resource postgresAdmin 'Microsoft.DBforPostgreSQL/flexibleServers/administrators
     tenantId: subscription().tenantId
     principalName: userAssignedIdentity.name
   }
+  dependsOn: [
+    fwRule
+    database
+    postgresqlConfig
+  ]
 }
 
 // Azure Container Registry
