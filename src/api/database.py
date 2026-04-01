@@ -27,11 +27,17 @@ else:
     # PostgreSQL for production with Entra ID authentication
     connect_args = {
         "connect_timeout": 10,
-        "options": "-c statement_timeout=30000"
+        "options": "-c statement_timeout=30000",
+        "sslmode": "require"
     }
     
     # Use Entra ID authentication if no password is provided
     if not settings.postgres_password:
+        if settings.postgres_user.lower() == "postgres":
+            raise RuntimeError(
+                "POSTGRES_USER=postgres is invalid for Entra ID token auth. "
+                "Set POSTGRES_USER to your Entra principal (for example, the user-assigned identity name)."
+            )
         try:
             credential = DefaultAzureCredential()
             token = credential.get_token("https://ossrdbms-aad.database.windows.net/.default")

@@ -59,11 +59,11 @@ class Settings(BaseSettings):
             # PostgreSQL with Entra ID authentication
             if self.postgres_password:
                 # Use password if explicitly provided (local development)
-                return f"postgresql+psycopg2://{self.postgres_user}:{self.postgres_password}@{self.postgres_server}:{self.postgres_port}/{self.postgres_db}"
+                return f"postgresql+psycopg2://{self.postgres_user}:{self.postgres_password}@{self.postgres_server}:{self.postgres_port}/{self.postgres_db}?sslmode=require"
             else:
                 # Azure Entra ID authentication - password will be retrieved dynamically
                 # Username should be the AAD user email or app ID
-                return f"postgresql+psycopg2://{self.postgres_user}@{self.postgres_server}:{self.postgres_port}/{self.postgres_db}"
+                return f"postgresql+psycopg2://{self.postgres_user}@{self.postgres_server}:{self.postgres_port}/{self.postgres_db}?sslmode=require"
 
 
 settings = Settings()

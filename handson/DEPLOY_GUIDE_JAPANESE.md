@@ -318,11 +318,11 @@ $sp | ConvertTo-Json
 | `POSTGRES_SERVER`                  | `postgres-todomanagement-xxxxx` | デプロイ出力から取得  |
 | `DATABASE_TYPE`                    | `postgresql`                    | PostgreSQL を強制使用 |
 | `POSTGRES_DB`                      | `tododb`                        | デフォルト            |
-| `POSTGRES_USER`                    | `postgres`                      | デフォルト            |
+| `POSTGRES_USER`                    | `uai-<project>-<env>`           | Entra/Managed Identity のプリンシパル名（`postgres` は不可） |
 | `AZURE_CLIENT_ID`                  | `[Entra ID App ID]`             | Azure Portal から取得 |
 | `AZURE_TENANT_ID`                  | `[租户 ID]`                     | Azure Portal から取得 |
 | `AZURE_REDIRECT_URI`               | `https://[web-app-url]`         | デプロイ後に取得      |
-| `API_BASE_URL`                     | `https://[api-app-url]`         | デプロイ後に取得      |
+| `API_PROXY_TARGET`                 | `https://[api-app-url]`         | Web から internal API へのプロキシ先 |
 | `USER_ASSIGNED_IDENTITY_CLIENT_ID` | `[Managed Identity Client ID]`  | デプロイ出力から取得  |
 
 **追加方法**：
