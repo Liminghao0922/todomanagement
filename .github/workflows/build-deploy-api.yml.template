@@ -48,12 +48,14 @@ jobs:
             --resource-group ${{ vars.RESOURCE_GROUP }} \
             --environment cae-todomanagement-dev \
             --image ${{ vars.ACR_NAME }}.azurecr.io/todomanagement-api:latest \
+            --registry-server ${{ vars.ACR_NAME }}.azurecr.io \
+            --registry-identity ${{ vars.USER_ASSIGNED_IDENTITY_RESOURCE_ID }} \
             --target-port 8000 \
             --ingress internal \
-            --env-vars USER_ASSIGNED_IDENTITY_CLIENT_ID="${{ vars.USER_ASSIGNED_IDENTITY_CLIENT_ID }}" \
+            --env-vars AZURE_CLIENT_ID="${{ vars.USER_ASSIGNED_IDENTITY_CLIENT_ID }}" \
+                        USER_ASSIGNED_IDENTITY_CLIENT_ID="${{ vars.USER_ASSIGNED_IDENTITY_CLIENT_ID }}" \
                         POSTGRES_SERVER="${{ vars.POSTGRES_SERVER }}" \
                         POSTGRES_DB="${{ vars.POSTGRES_DB }}" \
                         POSTGRES_USER="${{ vars.POSTGRES_USER }}" \
                         DATABASE_TYPE="${{ vars.DATABASE_TYPE }}" \
-                        CORS_ALLOWED_ORIGINS="*" \
                         ENVIRONMENT="production"

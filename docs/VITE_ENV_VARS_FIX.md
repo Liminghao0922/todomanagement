@@ -41,13 +41,11 @@ Vite 编译并将变量值烧入 HTML/JS
 ARG VITE_AZURE_CLIENT_ID
 ARG VITE_AZURE_AUTHORITY
 ARG VITE_AZURE_REDIRECT_URI
-ARG VITE_API_BASE_URL
 
 # Build Vue app with environment variables
 RUN VITE_AZURE_CLIENT_ID=${VITE_AZURE_CLIENT_ID} \
     VITE_AZURE_AUTHORITY=${VITE_AZURE_AUTHORITY} \
     VITE_AZURE_REDIRECT_URI=${VITE_AZURE_REDIRECT_URI} \
-    VITE_API_BASE_URL=${VITE_API_BASE_URL} \
     npm run build
 ```
 
@@ -63,7 +61,6 @@ RUN VITE_AZURE_CLIENT_ID=${VITE_AZURE_CLIENT_ID} \
       VITE_AZURE_CLIENT_ID=${{ vars.AZURE_CLIENT_ID }}
       VITE_AZURE_AUTHORITY=https://login.microsoftonline.com/${{ vars.AZURE_TENANT_ID }}
       VITE_AZURE_REDIRECT_URI=${{ vars.AZURE_REDIRECT_URI }}
-            VITE_API_BASE_URL=/api
 ```
 
 ### 3. Container App 运行时
@@ -71,15 +68,15 @@ RUN VITE_AZURE_CLIENT_ID=${VITE_AZURE_CLIENT_ID} \
 移除运行时无效的 `VITE_*` 注入，只保留 Web 反向代理需要的变量：
 
 ```yaml
---env-vars API_PROXY_TARGET="${{ vars.API_PROXY_TARGET }}" USER_ASSIGNED_IDENTITY_CLIENT_ID="${{ vars.USER_ASSIGNED_IDENTITY_CLIENT_ID }}"
+--env-vars API_PROXY_TARGET="${{ vars.API_PROXY_TARGET }}"
 ```
 
-这里的 `API_PROXY_TARGET` 指向 internal API Container App 的 ingress URL，而浏览器仍然只访问同源 `/api`。
+这里的 `API_PROXY_TARGET` 指向 internal API Container App 的 ingress URL，而浏览器仍然只访问同源 `/api`。`/api` 已在前端代码中固定，不再通过 `VITE_API_BASE_URL` 配置。
 
 ## 🚀 部署步骤
 
 1. 修改已完成：
-   - ✅ `src/web/Dockerfile` - 添加了 ARG 和环境变量传递
+    - ✅ `src/web/Dockerfile` - 添加了 Entra ID 所需的 build args
    - ✅ `.github/workflows/build-deploy-web.yml` - 添加了 build_args
 
 2. 提交更改：

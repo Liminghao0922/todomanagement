@@ -419,28 +419,8 @@ resource containerAppWeb 'Microsoft.App/containerApps@2024-03-01' = {
           }
           env: [
             {
-              name: 'VITE_API_BASE_URL'
-              value: '/api'
-            }
-            {
               name: 'API_PROXY_TARGET'
               value: 'https://${containerAppApi.properties.configuration.ingress.fqdn}'
-            }
-            {
-              name: 'VITE_AZURE_CLIENT_ID'
-              value: ''
-            }
-            {
-              name: 'VITE_AZURE_TENANT_ID'
-              value: ''
-            }
-            {
-              name: 'VITE_AZURE_REDIRECT_URI'
-              value: ''
-            }
-            {
-              name: 'ENVIRONMENT'
-              value: environment
             }
           ]
         }
@@ -505,6 +485,7 @@ output postgresSubnetId string = '${vnet.id}/subnets/${postgresSubnetName}'
 output containerAppSubnetId string = '${vnet.id}/subnets/${containerAppSubnetName}'
 output privateEndpointSubnetId string = '${vnet.id}/subnets/${privateEndpointSubnetName}'
 output userAssignedIdentityId string = userAssignedIdentity.id
+output userAssignedIdentityName string = userAssignedIdentity.name
 output userAssignedIdentityClientId string = userAssignedIdentity.properties.clientId
 output userAssignedIdentityPrincipalId string = userAssignedIdentity.properties.principalId
 output acrPrivateEndpointId string = acrPrivateEndpoint.id

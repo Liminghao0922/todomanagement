@@ -141,11 +141,10 @@ cat infra/parameters.json
 
 ### 4.2 Cloud Shell 内で編集（オプション）
 
-```powershell
-environment# Nano エディタで編集
-nano infra/parameters.json
+PowerShell で直接編集します：
 
-# または PowerShell で直接編集
+```powershell
+# PowerShell で parameters.json を編集
 $json = Get-Content infra/parameters.json | ConvertFrom-Json
 $json.parameters.location.value = "japaneast"
 $json.parameters.environment.value = "handson"
@@ -169,7 +168,7 @@ $json | ConvertTo-Json | Set-Content infra/parameters.json
 **重要な注釈**：
 
 - **初期化時のみ使用**: `postgresqlAdminPassword` は PostgreSQL サーバー作成時**のみ**必要です
-- **アプリケーションアクセス**: このプロジェクトは **Managed Identity** を使用しています
+- **アプリケーションアクセス**: このプロジェクトは **ユーザー割り当てマネージド ID（UAI）** を使用しています
   - ✅ アプリケーションはパスワード**なし**で PostgreSQL にアクセス
   - ✅ より安全な認証方式です
   - ✅ 認証情報を環境変数に保存する必要なし
@@ -190,9 +189,8 @@ $json | ConvertTo-Json | Set-Content infra/parameters.json
 
 ```powershell
 # 変数を設定
-$resourceGroupName = "rg-todomanagement-handson001"
+$resourceGroupName = "rg-todomanagement-dev"
 $location = "japaneast"
-
 ```
 
 ### 5.2 デプロイスクリプトを実行 （**所要時間**： 10 min~20min）
@@ -213,26 +211,38 @@ cd infra
 
 ### 5.3 デプロイ完了を確認
 
+`deploy.ps1` が実行完了したら、出力した情報を記録してください。
+
 ```powershell
-# デプロイの状態を確認
-az deployment group list -g $resourceGroupName --query "[].properties.outputs" -o json
-
 # 出力例：
-# {
-#   "postgresqlServerName": {"value": "postgres-todomanagement-xxxxx"},
-#   "containerRegistryName": {"value": "acrtodomanagementxxxxx"},
-#   "containerAppEnvironmentName": {"value": "cae-todomanagement-dev"}
-# }
-```
+==========================================
+Infrastructure Details
+==========================================
+PostgreSQL Server: postgres-todomanagement-4eg3h7exlf4p6
+PostgreSQL Hostname: postgres-todomanagement-4eg3h7exlf4p6.postgres.database.azure.com
+Container Registry Login Server: acrtodomanagement4eg3h7exlf4p6.azurecr.io
+Container Registry Name: acrtodomanagement4eg3h7exlf4p6
+Container App Environment: cae-todomanagement-dev
+Database Name: tododb
+API_URL: https://todomanagement-api.internal.calmhill-4a670c14.japaneast.azurecontainerapps.io
+WEB_URL: https://todomanagement-web.calmhill-4a670c14.japaneast.azurecontainerapps.io
 
-**出力から以下の情報を記録してください：**
+Web App Authentication:
+  AZURE_CLIENT_ID: xxxxxxxx-1338-4d64-a90c-19ae2cc9eff9
+  AZURE_TENANT_ID: xxxxxxxx-b5a9-466f-xxxx-d14b03f7ae76
+User Assigned Identity:
+  USER_ASSIGNED_IDENTITY_CLIENT_ID: xxxxxxxx-239e-4e1b-b759-5e601fcc4d8a
+  USER_ASSIGNED_IDENTITY_RESOURCE_ID: /subscriptions/xxxxxxxx-c1ec-xxxx-9ee7-22103870844b/resourceGroups/rg-todomanagement-xxxxxxxx/providers/Microsoft.ManagedIdentity/userAssignedIdentities/uai-todomanagement-dev
+  USER_ASSIGNED_IDENTITY_NAME: uai-todomanagement-dev
 
-```
-📝 デプロイ情報（後で使用）
-- PostgreSQL Server Name: postgres-todomanagement-xxxxx
-- ACR Name: acrtodomanagementxxxxx
-- Container App Environment: cae-todomanagement-dev
-- Resource Group: rg-todomanagement-dev
+==========================================
+Next Steps:
+  1. Configure GitHub Actions for CI/CD
+
+
+==========================================
+Deployment Completed!
+==========================================
 ```
 
 ---
@@ -311,19 +321,26 @@ $sp | ConvertTo-Json
 以下の Variables を追加します：
 
 
-| Variable Name                      | Value                           | 説明                  |
-| ---------------------------------- | ------------------------------- | --------------------- |
-| `ACR_NAME`                         | `acrtodomanagementxxxxx`        | デプロイ出力から取得  |
-| `RESOURCE_GROUP`                   | `rg-todomanagement-dev`         | デプロイ出力から取得  |
-| `POSTGRES_SERVER`                  | `postgres-todomanagement-xxxxx` | デプロイ出力から取得  |
-| `DATABASE_TYPE`                    | `postgresql`                    | PostgreSQL を強制使用 |
-| `POSTGRES_DB`                      | `tododb`                        | デフォルト            |
-| `POSTGRES_USER`                    | `uai-<project>-<env>`           | Entra/Managed Identity のプリンシパル名（`postgres` は不可） |
-| `AZURE_CLIENT_ID`                  | `[Entra ID App ID]`             | Azure Portal から取得 |
-| `AZURE_TENANT_ID`                  | `[租户 ID]`                     | Azure Portal から取得 |
-| `AZURE_REDIRECT_URI`               | `https://[web-app-url]`         | デプロイ後に取得      |
-| `API_PROXY_TARGET`                 | `https://[api-app-url]`         | Web から internal API へのプロキシ先 |
-| `USER_ASSIGNED_IDENTITY_CLIENT_ID` | `[Managed Identity Client ID]`  | デプロイ出力から取得  |
+| Variable Name                        | Value                                                       | 説明                                                           |
+| ------------------------------------ | ----------------------------------------------------------- | -------------------------------------------------------------- |
+| `ACR_NAME`                           | `acrtodomanagementxxxxx`                                    | デプロイ出力から取得                                           |
+| `RESOURCE_GROUP`                     | `rg-todomanagement-dev`                                     | デプロイ出力から取得                                           |
+| `POSTGRES_SERVER`                    | `postgres-todomanagement-xxxxx.postgres.database.azure.com` | デプロイ出力の`postgresqlHostname` から取得（FQDN 形式）       |
+| `DATABASE_TYPE`                      | `postgresql`                                                | PostgreSQL を強制使用                                          |
+| `POSTGRES_DB`                        | `tododb`                                                    | デフォルト                                                     |
+| `POSTGRES_USER`                      | `uai-<project>-<env>`                                       | Microsoft Entra ID / UAI のプリンシパル名（`postgres` は不可） |
+| `AZURE_CLIENT_ID`                    | `[Microsoft Entra ID App ID]`                               | Azure Portal から取得                                          |
+| `AZURE_TENANT_ID`                    | `[租户 ID]`                                                 | Azure Portal から取得                                          |
+| `AZURE_REDIRECT_URI`                 | `https://[web-app-url]`                                     | デプロイ後に取得                                               |
+| `API_PROXY_TARGET`                   | `https://[api-app-url]`                                     | Web から internal API Container App へのリバースプロキシ先     |
+| `USER_ASSIGNED_IDENTITY_CLIENT_ID`   | `[UAI Client ID]`                                           | デプロイ出力から取得                                           |
+| `USER_ASSIGNED_IDENTITY_RESOURCE_ID` | `/subscriptions/.../userAssignedIdentities/...`             | デプロイ出力から取得。workflow の`--registry-identity` に使用  |
+
+補足：
+
+- Web Container App の実行時設定で必要なのは `API_PROXY_TARGET` のみです
+- `USER_ASSIGNED_IDENTITY_CLIENT_ID` は API Container App が PostgreSQL に Microsoft Entra 認証するために使います
+- `USER_ASSIGNED_IDENTITY_RESOURCE_ID` は GitHub Actions のデプロイ時に使われ、アプリ実行時には不要です
 
 **追加方法**：
 
@@ -479,7 +496,7 @@ Actions ページで以下を確認：
 
 ## Step 1️⃣1️⃣ Web アプリケーションにアクセス
 
-### 1️⃣1️⃣.1 Container App URL を取得
+### 11.1 Container App URL を取得
 
 Cloud Shell で実行：
 
@@ -487,7 +504,7 @@ Cloud Shell で実行：
 # Web Container App の URL を取得
 az containerapp show `
   -n todomanagement-web `
-  -g rg-todomanagement-dev `
+  -g $resourceGroupName `
   --query "properties.configuration.ingress.fqdn" `
   -o tsv
 
@@ -501,165 +518,20 @@ az containerapp show `
 https://todomanagement-web.abc123def.japaneast.azurecontainerapps.io
 ```
 
-### 1️⃣1️⃣.2 ブラウザでアクセス
+### 11.2 ブラウザでアクセス
 
 1. 上記 URL をブラウザのアドレスバーにコピー・ペースト
 2. **Enter** キーを押す
 3. Todo Management アプリケーションが表示されます ✅
 
-### 1️⃣1️⃣.3 機能を確認
+### 11.3 機能を確認
 
 - **🔐 Login ボタン**をクリック
-- Microsoft/Azure AD で認証
+- Microsoft Entra ID で認証
 - Todo リストが表示される
 - New Todo の作成、編集、削除が可能
 
----
-
-## Step 1️⃣1️⃣ トラブルシューティング
-
-### 問題: Web にアクセスできない
-
-```powershell
-# Container App のステータス確認
-az containerapp show `
-  -n todomanagement-web `
-  -g rg-todomanagement-dev `
-  --query "properties.workloadProfileName"
-
-# ログを確認
-az containerapp logs show `
-  -n todomanagement-web `
-  -g rg-todomanagement-dev `
-  --tail 50
-```
-
-### 問題: API に接続できない
-
-```powershell
-# API の健康チェック
-curl https://todomanagement-api.abc123def.japaneast.azurecontainerapps.io/health
-
-# 出力例：
-# {"status":"healthy","service":"Todo Management API","version":"2.0.0"}
-```
-
-### 問題: CORS エラー
-
-API のエンドポイント設定を確認：
-
-```python
-# src/api/main.py 内の CORS 設定を確認
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-```
-
----
-
-## 完了チェックリスト ✅
-
-- [ ]  GitHub から Template をクローン
-- [ ]  Azure Cloud Shell を起動（PowerShell）
-- [ ]  リポジトリをダウンロード
-- [ ]  infra/parameters.json を修正
-- [ ]  `az group create` でリソースグループ作成
-- [ ]  `.\deploy.ps1` でインフラをデプロイ
-- [ ]  .env ファイルを設定
-- [ ]  Service Principal を作成
-- [ ]  GitHub Secrets に `AZURE_CREDENTIALS` を追加
-- [ ]  GitHub Variables を 10 個追加
-- [ ]  `git commit` と `git push`
-- [ ]  GitHub Actions が正常に実行
-- [ ]  Web アプリにアクセス可能
-- [ ]  Login 機能が動作
-
----
-
-## よくあるコマンド参考
-
-```powershell
-# ========== Azure CLI Commands ==========
-
-# サブスクリプション確認
-az account show
-
-# リソースグループ一覧
-az group list --output table
-
-# Container App の URL 取得
-az containerapp show -n todomanagement-web -g rg-todomanagement-dev --query "properties.configuration.ingress.fqdn" -o tsv
-
-# Container App のログ確認
-az containerapp logs show -n todomanagement-web -g rg-todomanagement-dev --tail 50
-
-# リソースグループ削除（クリーンアップ）
-az group delete --name rg-todomanagement-dev --yes --no-wait
-
-
-# ========== Git Commands ==========
-
-# 変更確認
-git status
-
-# 変更内容確認
-git diff
-
-# コミット・プッシュ
-git add .
-git commit -m "Your message"
-git push origin main
-
-# ブランチ確認
-git branch -a
-
-# リモート同期
-git pull origin main
-```
-
----
-
-## 次のステップ
-
-✨ デプロイ完了後：
-
-1. **カスタマイズ**
-
-   - `src/web/src/` で UI をカスタマイズ
-   - `src/api/` でビジネスロジックを追加
-   - 変更をコミット・プッシュで自動デプロイ
-2. **本番環境準備**
-
-   - 環境を `prod` に変更
-   - より強力なデータベース SKU を選択
-   - Entra ID テナントで認証設定
-3. **モニタリング**
-
-   - Azure Monitor でログ確認
-   - Application Insights でパフォーマンス確認
-4. **ドキュメント参照**
-
-   - `docs/ARCHITECTURE_GUIDE.md` - アーキテクチャ詳細
-   - `docs/GITHUB_CONFIG_SETUP.md` - GitHub 設定詳細
-   - `README.md` - 本体ドキュメント
-
----
-
-## サポート・お問い合わせ
-
-質問や問題がある場合：
-
-1. `docs/` フォルダの詳細ドキュメントを確認
-2. GitHub Issues で報告
-3. README.md の「参考与故障排査」を参照
-
----
-
 **楽しいデプロイを！🚀**
 
-作成日：2026-03-30
+作成日：2026-04-02
 バージョン：1.0

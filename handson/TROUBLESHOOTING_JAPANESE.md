@@ -219,22 +219,21 @@ curl https://todomanagement-api.abc123.japaneast.azurecontainerapps.io/health
 
 ### よくある原因と対応
 
-#### 原因 A: API_BASE_URL が正しく設定されていない
+#### 原因 A: API プロキシ設定が正しくない
 
 **確認:**
 ```bash
-# ローカルで Web を実行している場合
-# Browser DevTools → Console で実行:
-console.log(import.meta.env.VITE_API_BASE_URL)
-
-# 出力: http://localhost:8000 (local)
-# 出力: https://todomanagement-api.xxx (production)
+# Azure では Web Container App に API_PROXY_TARGET が設定されていることを確認
+az containerapp show \
+  -n todomanagement-web \
+  -g <resource-group> \
+  --query "properties.template.containers[0].env[?name=='API_PROXY_TARGET']"
 ```
 
 **対応:**
-- ローカル開発: `.env.local` で `VITE_API_BASE_URL=http://localhost:8000`
-- Azure 運用: GitHub Variables で `API_BASE_URL` を正しい URL に設定
-- 変更後は `npm run build` で再ビルド、GitHub Actions で再デプロイ
+- ローカル開発: `vite.config.ts` の `/api` proxy が `http://localhost:7071` を向いていることを確認
+- Azure 運用: GitHub Variables で `API_PROXY_TARGET` を internal API URL に設定
+- 変更後は Web workflow を再実行して再デプロイ
 
 #### 原因 B: CORS が有効でない
 

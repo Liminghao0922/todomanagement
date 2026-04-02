@@ -5,7 +5,7 @@
 AADSTS700038: 00000000-0000-0000-0000-000000000000 is not a valid application identifier.
 ```
 
-这个错误说明 `VITE_AZURE_CLIENT_ID` 或类似的 Entra ID 相关变量没有被正确设置。
+这个错误说明 `VITE_AZURE_CLIENT_ID` 或类似的 Microsoft Entra ID 相关变量没有被正确设置。
 
 ---
 
@@ -13,15 +13,21 @@ AADSTS700038: 00000000-0000-0000-0000-000000000000 is not a valid application id
 
 ### 第1步：确认缺失的 GitHub Variables
 
-工作流文件需要以下 **5个额外的変数** （除了已有的 ACR_NAME 和 RESOURCE_GROUP）：
+工作流文件需要以下变量（除了 Secret `AZURE_CREDENTIALS` 之外）：
 
 | Variable Name | 用途 | 示例值 |
 |---|---|---|
-| `AZURE_CLIENT_ID` | Web 应用的 Entra ID 应用 Client ID | `12345678-1234-1234-1234-123456789abc` |
+| `AZURE_CLIENT_ID` | Web 应用的 Microsoft Entra ID 应用 Client ID | `12345678-1234-1234-1234-123456789abc` |
 | `AZURE_TENANT_ID` | Azure 租户 ID | `87654321-4321-4321-4321-abcdef123456` |
 | `AZURE_REDIRECT_URI` | OAuth 重定向 URI（web 应用 URL） | `https://todomanagement-web.abc123.japaneast.azurecontainerapps.io` |
-| `API_PROXY_TARGET` | Web 容器代理到 internal API 的上游地址 | `https://todomanagement-api.abc123.japaneast.azurecontainerapps.io` |
-| `USER_ASSIGNED_IDENTITY_CLIENT_ID` | 用户分配托管标识 Client ID | `12345678-1234-1234-1234-111111111111` |
+| `API_PROXY_TARGET` | Web 容器反向代理到 internal API Container App 的上游地址 | `https://todomanagement-api.abc123.japaneast.azurecontainerapps.io` |
+| `USER_ASSIGNED_IDENTITY_CLIENT_ID` | 用户分配托管标识（UAI）Client ID | `12345678-1234-1234-1234-111111111111` |
+| `USER_ASSIGNED_IDENTITY_RESOURCE_ID` | 用户分配托管标识（UAI）Resource ID | `/subscriptions/.../providers/Microsoft.ManagedIdentity/userAssignedIdentities/uai-todomanagement-dev` |
+
+说明：
+- `API_PROXY_TARGET` 只给 web 容器运行时使用
+- `USER_ASSIGNED_IDENTITY_CLIENT_ID` 只给 API 容器运行时使用，用于固定选择用户分配托管标识（UAI）
+- `USER_ASSIGNED_IDENTITY_RESOURCE_ID` 只给 GitHub Actions 的 `az containerapp up --registry-identity` 使用
 
 ### 第2步：获取这些值
 
@@ -74,7 +80,7 @@ az containerapp show -n todomanagement-api -g rg-todomanagement-dev --query prop
 #### 获取 USER_ASSIGNED_IDENTITY_CLIENT_ID
 
 1. 打开 Azure Portal → 搜索 **Managed Identities**
-2. 或导航到：**所有资源** → 搜索你的资源组中的用户分配托管标识
+2. 或导航到：**所有资源** → 搜索你的资源组中的用户分配托管标识（UAI）
 3. 点击打开，复制 **Client ID**
 
 或使用 Azure CLI：
@@ -84,6 +90,12 @@ az identity list -g rg-todomanagement-dev
 
 # 查看详细信息
 az identity show -g rg-todomanagement-dev -n <identity-name> --query clientId -o tsv
+```
+
+#### 获取 USER_ASSIGNED_IDENTITY_RESOURCE_ID
+
+```powershell
+az identity show -g rg-todomanagement-dev -n <identity-name> --query id -o tsv
 ```
 
 ---
@@ -108,7 +120,8 @@ $token = "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"  # GitHub Personal Access Token
   -AzureTenantId "87654321-..." `
   -RedirectUri "https://todomanagement-web.abc.azurecontainerapps.io" `
    -ApiProxyTarget "https://todomanagement-api.abc.azurecontainerapps.io" `
-  -UserAssignedIdentityClientId "12345678-..."
+   -UserAssignedIdentityClientId "12345678-..." `
+   -UserAssignedIdentityResourceId "/subscriptions/.../providers/Microsoft.ManagedIdentity/userAssignedIdentities/uai-todomanagement-dev"
 ```
 
 获取 GitHub Personal Access Token：
@@ -122,7 +135,7 @@ $token = "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"  # GitHub Personal Access Token
 1. 打开你的 GitHub 仓库
 2. 进入：**Settings** → **Secrets and variables** → **Variables**
 3. 点击 **New repository variable**
-4. 添加以下 5 个 Variables：
+4. 添加以下 Variables：
 
    **Variable 1:**
    - Name: `AZURE_CLIENT_ID`
@@ -144,6 +157,10 @@ $token = "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"  # GitHub Personal Access Token
    - Name: `USER_ASSIGNED_IDENTITY_CLIENT_ID`
    - Value: (用户分配托管标识的 Client ID)
 
+   **Variable 6:**
+   - Name: `USER_ASSIGNED_IDENTITY_RESOURCE_ID`
+   - Value: (用户分配托管标识的完整 Azure Resource ID)
+
 ---
 
 ### 第4步：验证配置
@@ -160,6 +177,7 @@ gh variable list -R your-org/todomanagement
 # AZURE_REDIRECT_URI                      https://todomanagement-web.xxxxx.azurecontainerapps.io
 # API_PROXY_TARGET                        https://todomanagement-api.xxxxx.azurecontainerapps.io
 # USER_ASSIGNED_IDENTITY_CLIENT_ID        12345678-1234-1234-1234-111111111111
+# USER_ASSIGNED_IDENTITY_RESOURCE_ID      /subscriptions/.../providers/Microsoft.ManagedIdentity/userAssignedIdentities/uai-todomanagement-dev
 ```
 
 ---
@@ -215,7 +233,7 @@ git push
 
 ## 📖 参考
 
-- [Azure Entra ID App Registration](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app)
+- [Microsoft Entra ID App Registration](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app)
 - [MSAL.js Configuration](https://github.com/AzureAD/microsoft-authentication-library-for-js)
 - [GitHub Actions Variables](https://docs.github.com/en/actions/learn-github-actions/variables)
 - [Azure Container Apps](https://learn.microsoft.com/en-us/azure/container-apps/overview)

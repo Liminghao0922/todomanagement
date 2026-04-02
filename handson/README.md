@@ -155,7 +155,7 @@ POSTGRES_USER
 AZURE_CLIENT_ID
 AZURE_TENANT_ID
 AZURE_REDIRECT_URI
-API_BASE_URL
+API_PROXY_TARGET
 ```
 
 ### GitHub Secrets（1 個）
@@ -222,7 +222,7 @@ az group delete --name rg-todomanagement-dev --yes --no-wait
 
 - [ ] Web URL にアクセスできる
 - [ ] ログインボタンが表示される
-- [ ] Microsoft/Azure AD でログインできる
+- [ ] Microsoft Entra ID でログインできる
 - [ ] Todo リストが表示される
 - [ ] 新しい Todo を作成できる
 - [ ] Todo を編集できる

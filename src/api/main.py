@@ -4,12 +4,11 @@ from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel
 from fastapi import FastAPI, Depends, HTTPException, Query
-from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_, desc
+from sqlalchemy import or_, desc
 
 from config import settings
-from database import get_db, SessionLocal, init_db
+from database import get_db, init_db
 from models import Owner, Todo, Project
 from schemas import (
     TodoCreate, TodoUpdate, TodoInDB, TodoListResponse,
@@ -26,15 +25,6 @@ app = FastAPI(
     title=settings.api_title,
     version=settings.api_version,
     description="Todo Management API"
-)
-
-# Add CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.cors_allowed_origins,
-    allow_credentials=settings.cors_allow_credentials,
-    allow_methods=["*"],
-    allow_headers=["*"],
 )
 
 # Initialize database (after models are imported)

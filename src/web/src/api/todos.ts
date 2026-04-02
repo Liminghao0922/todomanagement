@@ -1,26 +1,6 @@
 import { apiClient } from './http'
 import type { Todo } from '@/types'
 
-export interface TodoResponse {
-  id: string
-  userId: string
-  title: string
-  description?: string
-  status: 'pending' | 'in-progress' | 'completed'
-  priority: 'low' | 'medium' | 'high'
-  dueDate?: string
-  tags: string[]
-  createdAt: string
-  updatedAt: string
-}
-
-interface ApiResponse<T> {
-  success: boolean
-  data?: T
-  error?: string
-  timestamp: string
-}
-
 export interface PaginatedResult {
   items: Todo[]
   total: number

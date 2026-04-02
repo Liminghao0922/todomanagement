@@ -17,12 +17,18 @@ Repository Variables位置：**Settings** → **Secrets and variables** → **Va
 | `POSTGRES_SERVER` | `postgres-todomanagement-xxxxx.postgres.database.azure.com` | PostgreSQL 服务器完整域名 |
 | `DATABASE_TYPE` | `postgresql` | 强制API使用PostgreSQL（避免回退到SQLite） |
 | `POSTGRES_DB` | `tododb` | PostgreSQL 数据库名称 |
-| `POSTGRES_USER` | (Entra ID user/app) | 授予 PostgreSQL 权限的 Entra ID 身份 |
-| `AZURE_CLIENT_ID` | (Azure Entra ID应用ID) | Web应用的Azure Entra ID应用客户端ID |
+| `POSTGRES_USER` | (Microsoft Entra ID user/app) | 授予 PostgreSQL 权限的 Microsoft Entra ID 身份 |
+| `AZURE_CLIENT_ID` | (Microsoft Entra ID 应用 ID) | Web 应用的 Microsoft Entra ID 应用客户端 ID |
 | `AZURE_TENANT_ID` | (你的Azure租户ID) | Azure租户ID |
 | `AZURE_REDIRECT_URI` | `https://your-domain.com` | OAuth重定向URI（部署后的web应用URL） |
-| `API_PROXY_TARGET` | `https://internal-api-fqdn` | Web Container App 反向代理的上游地址（internal API Container App URL） |
-| `USER_ASSIGNED_IDENTITY_CLIENT_ID` | (用户分配的托管标识Client ID) | Container App使用的用户分配托管标识ID |
+| `API_PROXY_TARGET` | `https://internal-api-fqdn` | Web Container App 反向代理到 internal API Container App 的上游地址 |
+| `USER_ASSIGNED_IDENTITY_CLIENT_ID` | (用户分配托管标识 Client ID) | API Container App 获取 PostgreSQL Microsoft Entra token 时显式指定 UAI |
+| `USER_ASSIGNED_IDENTITY_RESOURCE_ID` | `/subscriptions/.../userAssignedIdentities/...` | Web/API workflow 中 `--registry-identity` 使用的 UAI Resource ID |
+
+说明：
+- Web Container App 运行时只需要 `API_PROXY_TARGET`
+- API Container App 运行时需要 `USER_ASSIGNED_IDENTITY_CLIENT_ID` 以固定使用 UAI 获取 PostgreSQL token
+- `USER_ASSIGNED_IDENTITY_RESOURCE_ID` 供 GitHub Actions 部署命令使用，不会注入到应用容器内部
 
 ### 设置步骤
 
@@ -60,9 +66,9 @@ az ad sp create-for-rbac `
   --json-auth
 ```
 
-#### 方法2：使用Azure Portal
+#### 方法2：使用 Azure Portal
 
-1. 前往 Azure AD → App registrations → New registration
+1. 前往 Microsoft Entra ID → App registrations → New registration
 2. 设置名称为 `github-todomanagement-actions`
 3. 创建credentials：Certificates & secrets → New client secret
 4. 记录：
@@ -158,7 +164,7 @@ Success标志：
 4. 点击 `AZURE_CREDENTIALS`
 5. 点击 **Update secret**
 6. 粘贴新JSON
-7. 删除旧的Client Secret (在Azure AD中)
+7. 删除旧的 Client Secret（在 Microsoft Entra ID 中）
 
 ---
 

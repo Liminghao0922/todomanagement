@@ -92,10 +92,10 @@
 | 3 | `POSTGRES_SERVER` | デプロイ出力 |
 | 4 | `POSTGRES_DB` | `tododb` |
 | 5 | `POSTGRES_USER` | `postgres` |
-| 6 | `AZURE_CLIENT_ID` | Entra ID App |
-| 7 | `AZURE_TENANT_ID` | Entra ID Tenant |
+| 6 | `AZURE_CLIENT_ID` | Microsoft Entra ID App |
+| 7 | `AZURE_TENANT_ID` | Microsoft Entra ID Tenant |
 | 8 | `AZURE_REDIRECT_URI` | Web App URL |
-| 9 | `API_BASE_URL` | API App URL |
+| 9 | `API_PROXY_TARGET` | internal API Container App URL |
 
 ### GitHub Secrets (1 個)
 
@@ -163,11 +163,12 @@ ENVIRONMENT=development
 ### src/web/.env.local
 
 ```env
-VITE_API_BASE_URL=http://localhost:8000
 VITE_AZURE_CLIENT_ID=[from Entra ID]
 VITE_AZURE_AUTHORITY=https://login.microsoftonline.com/[tenant-id]
 VITE_AZURE_REDIRECT_URI=http://localhost:5173
 ```
+
+`/api` はコード側で固定されており、ローカルでは Vite dev proxy、Azure では nginx reverse proxy が internal API Container App に転送します。
 
 ---
 

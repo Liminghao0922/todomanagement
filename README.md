@@ -1,10 +1,10 @@
 # Todo Management
 
-全栈示例：FastAPI + PostgreSQL 后端与 Vue 3 + Vite 前端，使用 Azure Container Apps、ACR、Entra ID 托管身份和私网访问实现零明文凭据架构。
+全栈示例：FastAPI + PostgreSQL 后端与 Vue 3 + Vite 前端，使用 Azure Container Apps、ACR、Microsoft Entra ID、用户分配托管标识（UAI）和私网访问实现零明文凭据架构。
 
 ## 架构速览
 - 容器：`todomanagement-api`（FastAPI）与 `todomanagement-web`（Vite/Vue）。
-- 基础设施：VNet 私有子网、PostgreSQL Flexible Server（Entra ID）、ACR 私有端点、Container Apps Environment、Log Analytics、用户分配托管身份。
+- 基础设施：VNet 私有子网、PostgreSQL Flexible Server（Microsoft Entra ID 认证）、ACR 私有端点、Container Apps Environment、Log Analytics、用户分配托管标识（UAI）。
 - CI/CD：GitHub Actions 构建镜像推送 ACR，并通过 `az containerapp up` 滚动部署。
 - 参考：`docs/ARCHITECTURE_GUIDE.md` 与 `images/01.Architecture.png`。
 
@@ -32,12 +32,10 @@ Web
 ```powershell
 cd src\web
 copy .env.example .env.local
-# 本地后端地址
-set VITE_API_BASE_URL=http://localhost:8000
 npm install
 npm run dev  # http://localhost:5173
 ```
-生产构建：`npm run build`，输出在 `dist/`。Azure 生产环境保持 `VITE_API_BASE_URL=/api`，并在 Web Container App 运行时配置 `API_PROXY_TARGET` 指向 internal API Container App。
+本地开发时，Vite 会把 `/api` 自动反向代理到本地后端。生产构建：`npm run build`，输出在 `dist/`。Azure 生产环境通过 Web Container App 运行时变量 `API_PROXY_TARGET` 将同源 `/api` 反向代理到 internal API Container App。
 
 ## 使用 Azure Cloud Shell 部署
 要求：订阅 Contributor/Owner 权限。Cloud Shell（Bash）自带 Azure CLI/Bicep。
@@ -54,12 +52,12 @@ cd todomanagement/infra
 chmod +x deploy.sh
 ./deploy.sh
 ```
-5) 记录部署输出（PostgreSQL 主机名/DB、ACR 名称、Container Apps Environment、托管身份等）。  
+5) 记录部署输出（PostgreSQL 主机名/DB、ACR 名称、Container Apps Environment、用户分配托管标识/UAI 等）。  
 6) 在 GitHub 仓库配置 Secrets/Variables（详见 `docs/GITHUB_CONFIG_SETUP.md` 与 `docs/VITE_ENV_VARS_FIX.md`）：
-   - Variables：`ACR_NAME`、`RESOURCE_GROUP`、`POSTGRES_SERVER`、`POSTGRES_DB`（默认 `tododb`）、`POSTGRES_USER`（授予权限的 Entra 身份）、`AZURE_CLIENT_ID`、`AZURE_TENANT_ID`、`AZURE_REDIRECT_URI`、`API_PROXY_TARGET`、`USER_ASSIGNED_IDENTITY_CLIENT_ID` 等。
+   - Variables：`ACR_NAME`、`RESOURCE_GROUP`、`POSTGRES_SERVER`、`POSTGRES_DB`（默认 `tododb`）、`POSTGRES_USER`（授予权限的 Microsoft Entra ID 身份）、`AZURE_CLIENT_ID`、`AZURE_TENANT_ID`、`AZURE_REDIRECT_URI`、`API_PROXY_TARGET`、`USER_ASSIGNED_IDENTITY_CLIENT_ID`、`USER_ASSIGNED_IDENTITY_RESOURCE_ID` 等。
    - Secret：`AZURE_CREDENTIALS`（Service Principal JSON）。
 7) 触发 GitHub Actions（`build-deploy-api.yml`、`build-deploy-web.yml`）通过 `workflow_dispatch` 或推送到 main。工作流会构建镜像、推送 ACR 并部署 Container Apps。  
-8) 部署后，在 Entra ID 应用中加入新的 Web 重定向 URI（Container App URL），并验证：
+8) 部署后，在 Microsoft Entra ID 应用中加入新的 Web 重定向 URI（Container App URL），并验证：
 ```
 https://<api-fqdn>/health
 https://<web-fqdn>/            # 前端

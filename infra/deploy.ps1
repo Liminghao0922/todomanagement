@@ -112,12 +112,13 @@ Write-Host ""
 Write-Host "Web App Authentication:" -ForegroundColor Cyan
 Write-Host "  AZURE_CLIENT_ID: $($outputs.appRegistrationAppId.value)"
 Write-Host "  AZURE_TENANT_ID: $($outputs.azureTenantId.value)"
+
+Write-Host "User Assigned Identity:" -ForegroundColor Cyan
 Write-Host "  USER_ASSIGNED_IDENTITY_CLIENT_ID: $($outputs.userAssignedIdentityClientId.value)"
+Write-Host "  USER_ASSIGNED_IDENTITY_RESOURCE_ID: $($outputs.userAssignedIdentityId.value)"
+Write-Host "  USER_ASSIGNED_IDENTITY_NAME: $($outputs.userAssignedIdentityName.value)"
 Write-Host ""
-Write-Host "Subnet IDs:" -ForegroundColor Cyan
-Write-Host "  PostgreSQL Subnet: $($outputs.postgresSubnetId.value)"
-Write-Host "  Container App Subnet: $($outputs.containerAppSubnetId.value)"
-Write-Host ""
+Write-Host "==========================================" -ForegroundColor Green
 Write-Host "Next Steps:" -ForegroundColor Yellow
 Write-Host "  1. Configure GitHub Actions for CI/CD"
 Write-Host ""

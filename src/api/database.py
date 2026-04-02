@@ -39,10 +39,16 @@ else:
                 "Set POSTGRES_USER to your Entra principal (for example, the user-assigned identity name)."
             )
         try:
-            credential = DefaultAzureCredential()
+            managed_identity_client_id = (
+                os.getenv("USER_ASSIGNED_IDENTITY_CLIENT_ID")
+            )
+            credential = DefaultAzureCredential(managed_identity_client_id=managed_identity_client_id)
             token = credential.get_token("https://ossrdbms-aad.database.windows.net/.default")
             connect_args["password"] = token.token
-            logger.info("Using Entra ID authentication for PostgreSQL")
+            logger.info(
+                "Using Entra ID authentication for PostgreSQL (client_id=%s)",
+                managed_identity_client_id or "default"
+            )
         except Exception as e:
             logger.warning(f"Failed to get Entra ID token: {e}. Please ensure DefaultAzureCredential is properly configured.")
             raise
@@ -50,7 +56,7 @@ else:
     engine = create_engine(
         settings.database_url,
         echo=settings.debug,
-        poolclass=NullPool,  # No pooling for Azure Functions
+        poolclass=NullPool,  # No connection pooling (stateless Container Apps)
         connect_args=connect_args
     )
 

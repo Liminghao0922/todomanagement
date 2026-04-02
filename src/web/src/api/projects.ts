@@ -1,13 +1,6 @@
 import { apiClient } from './http'
 import type { Project } from '@/types'
 
-interface ApiResponse<T> {
-  success: boolean
-  data?: T
-  error?: string
-  timestamp: string
-}
-
 export async function getProjects(
   userId: string,
   status?: string

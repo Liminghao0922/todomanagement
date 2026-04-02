@@ -165,7 +165,7 @@ When a user accesses the Todo application:
    │  └─ Check authentication headers
    │
    ├─ Load Todo data:
-   │  ├─ Get PostgreSQL token from managed identity
+    │  ├─ Get PostgreSQL token from the user-assigned managed identity (UAI)
    │  ├─ Connect via private endpoint (10.0.1.x:5432)
    │  └─ Execute query as "uai-todomanagement-dev"
    │
@@ -186,7 +186,7 @@ When a user accesses the Todo application:
 - ❌ Database passwords NOT stored
 - ❌ ACR credentials NOT stored
 - ❌ GitHub secrets limited to Service Principal ID only
-- ✅ Tokens acquired at runtime via managed identity
+- ✅ Tokens acquired at runtime via the user-assigned managed identity (UAI)
 - ✅ Tokens automatically refreshed
 
 #### 2. **Private Network Only**
@@ -200,8 +200,8 @@ When a user accesses the Todo application:
 #### 3. **Identity-Based Access (Entra ID)**
 
 - ❌ Username/password authentication NOT used
-- ✅ Container App = Entra ID Service Principal
-- ✅ PostgreSQL role tied to Entra ID object
+- ✅ Container App uses a user-assigned managed identity (UAI)
+- ✅ PostgreSQL role tied to the corresponding Microsoft Entra ID object
 - ✅ ACR access via RBAC (AcrPull role)
 - ✅ GitHub Actions via federated credentials
 
@@ -290,7 +290,7 @@ Resource Group (rg-todomanagement-dev)
 │     └─ azurecr.io
 │        └─ A Record: acr-name → 10.0.x.x
 │
-├─ User Assigned Identity (uai-todomanagement-dev)
+├─ User-Assigned Managed Identity (UAI: uai-todomanagement-dev)
 │  ├─ Principal ID: (Auto-generated GUID)
 │  └─ Client ID: (Auto-generated GUID)
 │
@@ -305,10 +305,10 @@ Resource Group (rg-todomanagement-dev)
 │  ├─ VNet Integration: Yes (subnet ps-containerapp)
 │  ├─ Log Analytics: Integrated
 │  └─ Container App: todomanagement-app
-│     ├─ Identity: User Assigned (uai: ...)
+│     ├─ Identity: User-assigned managed identity (UAI)
 │     ├─ Image: acr.../todomanagement:latest
 │     ├─ Environment Variables: POSTGRES_HOST, POSTGRES_DB, etc.
-│     └─ Port: 8000 (internal API)
+│     └─ Port: 8000 (internal API Container App)
 │
 └─ Role Assignments
    ├─ AcrPull: UAI on ACR
@@ -370,7 +370,7 @@ Manual SQL execution on PostgreSQL
 ```
 Update source code
 ├─ Update requirements.txt (add azure-identity)
-├─ Update database.py (use managed identity)
+├─ Update database.py (use the user-assigned managed identity, UAI)
 ├─ Update environment variables
 └─ Remove hardcoded database password
 ```
@@ -541,7 +541,7 @@ Cost reduction tips:
 - [X]  No hardcoded secrets in code
 - [X]  No passwords in GitHub/documentation
 - [X]  Private endpoints for all data services
-- [X]  Managed identity for container authentication
+- [X]  User-assigned managed identity (UAI) for container authentication
 - [X]  RBAC with least privilege
 - [X]  Entra ID authentication for PostgreSQL
 - [X]  SSL/TLS encryption in transit
@@ -568,7 +568,7 @@ Cost reduction tips:
 1. **Add Application Gateway** for public endpoint + WAF
 2. **Enable PostgreSQL Replica** for read scaling
 3. **Configure Container App Autoscaling** based on metrics
-4. **Add Key Vault** for secrets (even in managed identity model)
+4. **Add Key Vault** for secrets (even in the UAI-based identity model)
 5. **Implement Network Policies** for pod-to-pod security
 6. **Setup Alerts** for error rates, database connection issues
 7. **Enable Audit Logging** for compliance requirements
