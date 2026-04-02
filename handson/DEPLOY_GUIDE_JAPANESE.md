@@ -325,6 +325,7 @@ $sp | ConvertTo-Json
 | ------------------------------------ | ----------------------------------------------------------- | -------------------------------------------------------------- |
 | `ACR_NAME`                           | `acrtodomanagementxxxxx`                                    | デプロイ出力から取得                                           |
 | `RESOURCE_GROUP`                     | `rg-todomanagement-dev`                                     | デプロイ出力から取得                                           |
+| `CONTAINER_APP_ENVIRONMENT`          | `cae-[projectName]-[environment]`                           | デプロイ出力の `Container App Environment` から取得。workflow の `--environment` に使用 |
 | `POSTGRES_SERVER`                    | `postgres-todomanagement-xxxxx.postgres.database.azure.com` | デプロイ出力の`postgresqlHostname` から取得（FQDN 形式）       |
 | `DATABASE_TYPE`                      | `postgresql`                                                | PostgreSQL を強制使用                                          |
 | `POSTGRES_DB`                        | `tododb`                                                    | デフォルト                                                     |
@@ -339,6 +340,7 @@ $sp | ConvertTo-Json
 補足：
 
 - Web Container App の実行時設定で必要なのは `API_PROXY_TARGET` のみです
+- `CONTAINER_APP_ENVIRONMENT` は API / Web 両方の workflow の `az containerapp up --environment` で使用します
 - `USER_ASSIGNED_IDENTITY_CLIENT_ID` は API Container App が PostgreSQL に Microsoft Entra 認証するために使います
 - `USER_ASSIGNED_IDENTITY_RESOURCE_ID` は GitHub Actions のデプロイ時に使われ、アプリ実行時には不要です
 
