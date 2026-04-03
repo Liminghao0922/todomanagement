@@ -593,9 +593,9 @@ az acr repository show `
 ## サポートが必要な場合
 
 1. **ドキュメント確認**
-   - `DEPLOY_GUIDE_JAPANESE.md` - 全体ガイド
-   - `QUICK_REFERENCE_JAPANESE.md` - クイックリファレンス
-   - `docs/ARCHITECTURE_GUIDE.md` - アーキテクチャ
+  - `DEPLOY_GUIDE-ja_JP.md` - 全体ガイド
+  - `QUICK_REFERENCE-ja_JP.md` - クイックリファレンス
+  - `docs/ARCHITECTURE_GUIDE-ja_JP.md` - アーキテクチャ
 
 2. **GitHub Issues**
    - https://github.com/Liminghao0922/todomanagement/issues

@@ -1,5 +1,7 @@
 # 🚀 Todo Management アプリケーション - デプロイメント完全ガイド
 
+[English](DEPLOY_GUIDE.md) | [简体中文](DEPLOY_GUIDE-zh_CN.md) | [日本語](DEPLOY_GUIDE-ja_JP.md)
+
 このドキュメントは、GitHub Template からプロジェクトを Clone し、Azure に デプロイメントするまでの全プロセスを日本語で説明します。
 
 **所要時間：約 30～40 分**
@@ -289,7 +291,7 @@ $sp | ConvertTo-Json
 
 1. GitHub リポジトリのページを開く
 2. **Settings** → **Secrets and variables** → **Actions** をクリック
-   ![1775016195315](images/DEPLOY_GUIDE_JAPANESE/1775016195315.png)
+  ![1775016195315](images/DEPLOY_GUIDE-ja_JP/1775016195315.png)
 
 ### 7.2 Secret を追加
 
@@ -310,13 +312,13 @@ $sp | ConvertTo-Json
 
 **Add secret** をクリック
 
-![1775017571109](images/DEPLOY_GUIDE_JAPANESE/1775017571109.png)
+![1775017571109](images/DEPLOY_GUIDE-ja_JP/1775017571109.png)
 
 ### 7.3 Variables を追加
 
 **Settings** → **Secrets and variables** → **Actions** をクリック
 
-![1775016195315](images/DEPLOY_GUIDE_JAPANESE/1775016195315.png)
+![1775016195315](images/DEPLOY_GUIDE-ja_JP/1775016195315.png)
 
 以下の Variables を追加します：
 
@@ -352,7 +354,7 @@ $sp | ConvertTo-Json
 4. **Value** に値を入力
 5. **Add variable** をクリック
 
-![1775016383501](images/DEPLOY_GUIDE_JAPANESE/1775016383501.png)
+![1775016383501](images/DEPLOY_GUIDE-ja_JP/1775016383501.png)
 
 ---
 

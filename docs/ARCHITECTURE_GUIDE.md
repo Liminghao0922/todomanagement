@@ -1,5 +1,7 @@
 # Complete Infrastructure Architecture Guide
 
+[English](ARCHITECTURE_GUIDE.md) | [简体中文](ARCHITECTURE_GUIDE-zh_CN.md) | [日本語](ARCHITECTURE_GUIDE-ja_JP.md)
+
 ## System Overview
 
 Your infrastructure implements a **private, secure, identity-based** architecture with zero hardcoded secrets.

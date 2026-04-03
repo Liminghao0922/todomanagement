@@ -232,9 +232,9 @@ az group delete --name rg-todomanagement-dev --yes --no-wait
 
 ## 📚 詳細参照
 
-- **完全ガイド**: `DEPLOY_GUIDE_JAPANESE.md`
-- **アーキテクチャ**: `docs/ARCHITECTURE_GUIDE.md`
-- **GitHub 設定**: `docs/GITHUB_CONFIG_SETUP.md`
+- **完全ガイド**: `DEPLOY_GUIDE-ja_JP.md`
+- **アーキテクチャ**: `docs/ARCHITECTURE_GUIDE-ja_JP.md`
+- **インフラ補足**: `infra/README.md`
 - **本体ドキュメント**: `README.md`
 
 ---
