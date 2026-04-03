@@ -10,7 +10,8 @@
 
 ## 📋 前提条件
 
-- Azure サブスクリプション（Contributor 以上の権限）
+- Azure サブスクリプション権限: `Owner`、または `Contributor` + `User Access Administrator`
+- Microsoft Entra ID 側でアプリ登録を作成できる権限
 - GitHub アカウント
 - Git がインストール済み
 - インターネット接続
@@ -249,9 +250,15 @@ Deployment Completed!
 
 ---
 
-## Step 6️⃣ Entra ID アプリ登録（GitHub Actions 用）
+## Step 6️⃣ Service Principal と Azure 資格情報を作成（GitHub Actions 用）
 
-### 6.1 Azure Portal で Service Principal を作成
+> **権限メモ**:
+> - このリポジトリでは `infra/main.bicep` 内で Microsoft Graph の `applications` リソースを作成します。
+> - また、ACR に対する RBAC ロール割り当ても作成します。
+> - そのため、Azure RBAC では `Owner`、または `Contributor` + `User Access Administrator` が必要です。
+> - 加えて、Microsoft Entra ID ではアプリ登録を作成できる権限が必要です。テナント設定で一般ユーザーのアプリ登録作成が許可されていない場合は、`Application Administrator`、`Cloud Application Administrator`、または同等権限を使ってください。
+
+### 6.1 Cloud Shell で Service Principal を作成
 
 Cloud Shell で以下を実行：
 
