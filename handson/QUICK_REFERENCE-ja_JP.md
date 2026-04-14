@@ -232,10 +232,14 @@ az group delete --name rg-todomanagement-dev --yes --no-wait
 
 ## 📚 詳細参照
 
+- **GUI 初学者ガイド**: `DEPLOY_GUIDE_GUI-ja_JP.md`
 - **完全ガイド**: `DEPLOY_GUIDE-ja_JP.md`
 - **アーキテクチャ**: `docs/ARCHITECTURE_GUIDE-ja_JP.md`
 - **インフラ補足**: `infra/README.md`
 - **本体ドキュメント**: `README.md`
+
+注記:
+- `DEPLOY_GUIDE-ja_JP.md` は IaC 上級向け手順です。
 
 ---
 

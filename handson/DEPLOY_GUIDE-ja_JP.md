@@ -33,9 +33,13 @@
 
    - **Repository name**: 任意の名前（例：`my-todo-app`）
    - **Description**: 任意（例：`My Todo Management App`）
-   - **Visibility**: `Public` または `Private` を選択
+    - **Visibility**: `Public` を選択（本ハンズオン推奨）
    - **Include all branches**: チェック不要
 4. **"Create repository from template"** をクリック
+
+重要:
+- 本ハンズオンでは `Public` リポジトリを推奨します。
+- `Private` にすると、Cloud Shell からの GitHub 認証や GitHub Actions の追加設定が必要になり、本筋以外のトラブルが増えます。
 
 ---
 
@@ -97,12 +101,16 @@ git pull origin main
 
 ## Step 4️⃣ 基本設定を修正（Cloud Shell 内）
 
-### 4.1 パラメータファイルを編集
+### 4.1 Cloud Shell エディタでパラメータを確認
+
+初心者向けに、Cloud Shell のエディタ (VS Code 体験) で編集する方法を推奨します。
 
 ```powershell
-# パラメータファイルを確認
-cat infra/parameters.json
+# Cloud Shell エディタを開く
+code .
 ```
+
+エディタで `infra/parameters.json` を開き、値を確認してください。
 
 **infra/parameters.json** 内容（デフォルト値）：
 
@@ -142,19 +150,16 @@ cat infra/parameters.json
 }
 ```
 
-### 4.2 Cloud Shell 内で編集（オプション）
+### 4.2 エディタで値を更新
 
-PowerShell で直接編集します：
+`infra/parameters.json` で次の項目を更新してください。
 
-```powershell
-# PowerShell で parameters.json を編集
-$json = Get-Content infra/parameters.json | ConvertFrom-Json
-$json.parameters.location.value = "japaneast"
-$json.parameters.environment.value = "handson"
-$json.parameters.projectName.value = "mytodoapp001"
-$json.parameters.postgresqlAdminPassword.value = "YourStrongPassword@123"
-$json | ConvertTo-Json | Set-Content infra/parameters.json
-```
+- `location`: 例 `japaneast`
+- `environment`: 例 `handson`
+- `projectName`: 例 `mytodoapp001`
+- `postgresqlAdminPassword`: 強力なパスワード
+
+PowerShell コマンドでの編集も可能ですが、初心者にはエディタ編集を推奨します。
 
 **重要な変更項目：**
 
@@ -257,6 +262,7 @@ Deployment Completed!
 > - また、ACR に対する RBAC ロール割り当ても作成します。
 > - そのため、Azure RBAC では `Owner`、または `Contributor` + `User Access Administrator` が必要です。
 > - 加えて、Microsoft Entra ID ではアプリ登録を作成できる権限が必要です。テナント設定で一般ユーザーのアプリ登録作成が許可されていない場合は、`Application Administrator`、`Cloud Application Administrator`、または同等権限を使ってください。
+> - テナント制約で Bicep のアプリ登録作成が失敗する場合は、Azure CLI または Azure Portal GUI でアプリ登録を作成し、その値を Variables に設定してください。
 
 ### 6.1 Cloud Shell で Service Principal を作成
 
@@ -323,6 +329,8 @@ $sp | ConvertTo-Json
 
 ### 7.3 Variables を追加
 
+このガイドでは、最初に **Repository variables** タブを選択してください（Environment variables ではありません）。
+
 **Settings** → **Secrets and variables** → **Actions** をクリック
 
 ![1775016195315](images/DEPLOY_GUIDE-ja_JP/1775016195315.png)
@@ -340,7 +348,7 @@ $sp | ConvertTo-Json
 | `POSTGRES_DB`                        | `tododb`                                                    | デフォルト                                                     |
 | `POSTGRES_USER`                      | `uai-<project>-<env>`                                       | Microsoft Entra ID / UAI のプリンシパル名（`postgres` は不可） |
 | `AZURE_CLIENT_ID`                    | `[Microsoft Entra ID App ID]`                               | Azure Portal から取得                                          |
-| `AZURE_TENANT_ID`                    | `[租户 ID]`                                                 | Azure Portal から取得                                          |
+| `AZURE_TENANT_ID`                    | `[Tenant ID]`                                               | Azure Portal から取得                                          |
 | `AZURE_REDIRECT_URI`                 | `https://[web-app-url]`                                     | デプロイ後に取得                                               |
 | `API_PROXY_TARGET`                   | `https://[api-app-url]`                                     | Web から internal API Container App へのリバースプロキシ先     |
 | `USER_ASSIGNED_IDENTITY_CLIENT_ID`   | `[UAI Client ID]`                                           | デプロイ出力から取得                                           |
@@ -369,16 +377,15 @@ $sp | ConvertTo-Json
 
 ### 8.1 Workflow テンプレートファイルをコピー
 
-このテンプレートリポジトリでは、CI/CD Workflow ファイルが `.template` 後缀を持っています。
+このテンプレートリポジトリでは、CI/CD Workflow ファイルが `.template` サフィックスを持っています。
 これは、テンプレートリポジトリ自身では Workflow が **自動実行されないようにするため**です。
 
 **必要な操作**：
 
-ローカルマシンで以下のコマンドを実行してください：
+Cloud Shell 上で（リポジトリのルートで）以下のコマンドを実行してください：
 
 ```bash
 # Workflow ファイルをコピーして、テンプレートサフィックスを削除
-cd ..
 cp .github/workflows/build-deploy-web.yml.template .github/workflows/build-deploy-web.yml
 cp .github/workflows/build-deploy-api.yml.template .github/workflows/build-deploy-api.yml
 

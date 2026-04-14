@@ -32,9 +32,13 @@
 3. 填写仓库信息：
 	 - **Repository name**：任意名称，例如 `my-todo-app`
 	 - **Description**：可选，例如 `My Todo Management App`
-	 - **Visibility**：选择 `Public` 或 `Private`
+	 - **Visibility**：选择 `Public`（本培训流程推荐）
 	 - **Include all branches**：不勾选
 4. 点击 **Create repository from template**
+
+重要说明：
+- 本手册建议参与者使用 `Public` 仓库。
+- 如果使用 `Private` 仓库，通常会出现额外的 GitHub 认证与 GitHub Actions 权限配置问题，容易偏离培训主线。
 
 ---
 
@@ -93,12 +97,16 @@ git pull origin main
 
 ## 第 4 步：检查并修改基础设置
 
-### 4.1 检查参数文件
+### 4.1 在 Cloud Shell 编辑器中检查参数文件
+
+对初学者更友好的方式是使用 Cloud Shell 内置编辑器（VS Code 体验）：
 
 ```powershell
-# 查看参数文件
-cat infra/parameters.json
+# 打开 Cloud Shell 编辑器
+code .
 ```
+
+在编辑器中打开 `infra/parameters.json` 并检查参数。
 
 默认 `infra/parameters.json` 内容如下：
 
@@ -138,17 +146,16 @@ cat infra/parameters.json
 }
 ```
 
-### 4.2 如有需要可在 Cloud Shell 中修改参数
+### 4.2 在编辑器中修改参数
 
-```powershell
-# 在 PowerShell 中修改 parameters.json
-$json = Get-Content infra/parameters.json | ConvertFrom-Json
-$json.parameters.location.value = "japaneast"
-$json.parameters.environment.value = "handson"
-$json.parameters.projectName.value = "mytodoapp001"
-$json.parameters.postgresqlAdminPassword.value = "YourStrongPassword@123"
-$json | ConvertTo-Json | Set-Content infra/parameters.json
-```
+建议在 `infra/parameters.json` 中按需修改：
+
+- `location`：目标区域（例如 `japaneast`）
+- `environment`：例如 `handson`
+- `projectName`：唯一前缀（例如 `mytodoapp001`）
+- `postgresqlAdminPassword`：强密码
+
+如果你更熟悉命令行，也可以继续使用 PowerShell 命令修改。
 
 重点检查这些参数：
 
@@ -238,6 +245,7 @@ Deployment Completed!
 > - 同时还会创建 ACR 的 Azure RBAC 角色分配。
 > - 因此 Azure 侧权限至少需要 `Owner`，或者 `Contributor` + `User Access Administrator`。
 > - 执行部署的身份还必须可以在 Microsoft Entra ID 中创建应用注册。如果租户关闭了普通用户自助创建应用注册，请使用具备 `Application Administrator`、`Cloud Application Administrator` 或等效目录权限的身份。
+> - 如果你的租户中 Bicep 创建应用注册失败，建议改用 Azure CLI 或 Azure Portal GUI 创建应用注册，然后把对应值填入 Variables。
 
 ### 6.1 在 Cloud Shell 中创建 Service Principal
 
@@ -308,6 +316,8 @@ $sp | ConvertTo-Json
 
 ### 7.3 添加 Variables
 
+本手册使用 **Repository variables**（不是 environment variables）。
+
 再次进入 **Settings** -> **Secrets and variables** -> **Actions**，并添加以下变量：
 
 | Variable Name | Value | 说明 |
@@ -351,11 +361,10 @@ $sp | ConvertTo-Json
 
 在这个模板仓库中，CI/CD workflow 文件使用 `.template` 后缀，这样可以避免模板源仓库自身自动执行 workflow。
 
-请在本地执行：
+请在 Cloud Shell 中执行（位于仓库根目录）：
 
 ```bash
 # 复制 workflow 文件并去掉 template 后缀
-cd ..
 cp .github/workflows/build-deploy-web.yml.template .github/workflows/build-deploy-web.yml
 cp .github/workflows/build-deploy-api.yml.template .github/workflows/build-deploy-api.yml
 

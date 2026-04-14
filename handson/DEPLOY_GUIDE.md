@@ -32,9 +32,13 @@ Estimated time: about 30 to 40 minutes.
 3. Fill in the repository details:
 	 - **Repository name**: any name, for example `my-todo-app`
 	 - **Description**: optional, for example `My Todo Management App`
-	 - **Visibility**: choose `Public` or `Private`
+	 - **Visibility**: choose `Public` (recommended and required for this workshop flow)
 	 - **Include all branches**: leave unchecked
 4. Click **Create repository from template**.
+
+Important:
+- Using a `Private` repository can introduce extra GitHub auth and CI/CD permission issues that are outside this hands-on scope.
+- Use `Public` for workshop participants unless you intentionally want to troubleshoot advanced private-repo setup.
 
 ---
 
@@ -93,12 +97,16 @@ git pull origin main
 
 ## Step 4. Review and Update Basic Settings
 
-### 4.1 Review the parameter file
+### 4.1 Review the parameter file in Cloud Shell editor
+
+Use the Cloud Shell editor (VS Code experience) for beginner-friendly edits:
 
 ```powershell
-# Review the parameter file
-cat infra/parameters.json
+# Open Cloud Shell editor in current folder
+code .
 ```
+
+Then open `infra/parameters.json` in the editor and review values.
 
 Default `infra/parameters.json` content:
 
@@ -138,17 +146,16 @@ Default `infra/parameters.json` content:
 }
 ```
 
-### 4.2 Edit parameters in Cloud Shell if needed
+### 4.2 Update parameters in editor
 
-```powershell
-# Edit parameters.json in PowerShell
-$json = Get-Content infra/parameters.json | ConvertFrom-Json
-$json.parameters.location.value = "japaneast"
-$json.parameters.environment.value = "handson"
-$json.parameters.projectName.value = "mytodoapp001"
-$json.parameters.postgresqlAdminPassword.value = "YourStrongPassword@123"
-$json | ConvertTo-Json | Set-Content infra/parameters.json
-```
+Recommended updates in `infra/parameters.json`:
+
+- `location`: your target region (for example `japaneast`)
+- `environment`: for example `handson`
+- `projectName`: unique prefix, for example `mytodoapp001`
+- `postgresqlAdminPassword`: strong password
+
+If you prefer CLI-based editing, you can still use PowerShell commands, but the editor approach is recommended for beginners.
 
 Important values to review:
 
@@ -238,6 +245,7 @@ Deployment Completed!
 > - It also creates an Azure RBAC role assignment for ACR access.
 > - Azure-side permissions therefore need to be `Owner`, or `Contributor` plus `User Access Administrator`.
 > - The deploying identity must also be allowed to create app registrations in Microsoft Entra ID. If self-service app registration is disabled in the tenant, use an identity with `Application Administrator`, `Cloud Application Administrator`, or equivalent directory permissions.
+> - If app registration creation fails in Bicep in your tenant, create app registration by Azure CLI or Azure Portal GUI, then use that app information in variables.
 
 ### 6.1 Create the service principal in Cloud Shell
 
@@ -308,6 +316,8 @@ Click **Add secret**.
 
 ### 7.3 Add repository variables
 
+At the top of the variables section, select the **Repository variables** tab (not environment variables for this guide).
+
 Click **Settings** -> **Secrets and variables** -> **Actions** again, then add the following variables:
 
 | Variable Name | Value | Description |
@@ -351,11 +361,10 @@ How to add them:
 
 In this template repository, CI/CD workflow files use the `.template` suffix. This prevents workflows from running automatically in the source template repository.
 
-Run the following locally:
+Run the following in Cloud Shell (from repository root):
 
 ```bash
 # Copy workflow files and remove the template suffix
-cd ..
 cp .github/workflows/build-deploy-web.yml.template .github/workflows/build-deploy-web.yml
 cp .github/workflows/build-deploy-api.yml.template .github/workflows/build-deploy-api.yml
 
@@ -369,7 +378,7 @@ ls -la .github/workflows/
 # build-deploy-api.yml.template
 ```
 
-Windows PowerShell version:
+Windows PowerShell version (same commands also work in Cloud Shell PowerShell):
 
 ```powershell
 Copy-Item ".github/workflows/build-deploy-web.yml.template" ".github/workflows/build-deploy-web.yml"

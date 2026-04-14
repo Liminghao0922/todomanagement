@@ -16,9 +16,6 @@ jobs:
       contents: read
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       - name: Log in to Azure
         uses: azure/login@v1
         with:
@@ -44,7 +41,7 @@ jobs:
       - name: Deploy to Container App
         run: |
           az containerapp up \
-            --name todomanagement-api \
+            --name app-todomanagement-api \
             --resource-group ${{ vars.RESOURCE_GROUP }} \
             --environment ${{ vars.CONTAINER_APP_ENVIRONMENT }} \
             --image ${{ vars.ACR_NAME }}.azurecr.io/todomanagement-api:latest \

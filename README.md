@@ -47,16 +47,22 @@ npm run dev  # http://localhost:5173
 During local development, Vite automatically proxies `/api` to the local backend. For production, run `npm run build` (output in `dist/`). In Azure, the web Container App uses `API_PROXY_TARGET` to reverse proxy same-origin `/api` to the internal API Container App.
 
 ## Deployment
-The standard deployment flow is:
+Recommended deployment order:
+1. Beginner track (GUI): `handson/DEPLOY_GUIDE_GUI.md`
+2. Advanced track (IaC): `handson/DEPLOY_GUIDE.md`
+
+IaC deployment flow summary:
 1. Deploy infrastructure from `infra/deploy.ps1`
 2. Record outputs such as ACR, PostgreSQL hostname, Container Apps environment, and UAI IDs
 3. Create workflow files from `.github/workflows/*.yml.template`
 4. Configure GitHub secret `AZURE_CREDENTIALS` and required repository variables
 5. Trigger GitHub Actions and validate the deployed API and web app
 
-See `handson/DEPLOY_GUIDE.md` for the full English guide.
+See `handson/DEPLOY_GUIDE_GUI.md` for the GUI-first beginner guide.
+See `handson/DEPLOY_GUIDE.md` for the IaC advanced guide.
 
 ## Related Docs
 - `docs/ARCHITECTURE_GUIDE.md`
+- `handson/DEPLOY_GUIDE_GUI.md`
 - `handson/DEPLOY_GUIDE.md`
 - `infra/README.md`

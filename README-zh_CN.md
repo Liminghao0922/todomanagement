@@ -47,16 +47,22 @@ npm run dev  # http://localhost:5173
 本地开发时，Vite 会把 `/api` 自动反向代理到本地后端。生产构建：`npm run build`，输出在 `dist/`。Azure 生产环境通过 Web Container App 运行时变量 `API_PROXY_TARGET` 将同源 `/api` 反向代理到 internal API Container App。
 
 ## 部署
-标准部署流程如下：
+推荐部署顺序如下：
+1. 初学者路径 (GUI): `handson/DEPLOY_GUIDE_GUI-zh_CN.md`
+2. 进阶路径 (IaC): `handson/DEPLOY_GUIDE-zh_CN.md`
+
+IaC 路径概要：
 1. 使用 `infra/deploy.ps1` 部署基础设施
 2. 记录 ACR、PostgreSQL 主机名、Container Apps Environment、UAI 标识等输出
 3. 由 `.github/workflows/*.yml.template` 初始化工作流文件
 4. 配置 GitHub Secret `AZURE_CREDENTIALS` 与所需 Variables
 5. 触发 GitHub Actions，并验证 API 与 Web 应用
 
-请参考 `handson/DEPLOY_GUIDE-zh_CN.md` 获取完整中文部署说明。
+初学者请先参考 `handson/DEPLOY_GUIDE_GUI-zh_CN.md`。
+IaC 进阶请参考 `handson/DEPLOY_GUIDE-zh_CN.md`。
 
 ## 相关文档
 - `docs/ARCHITECTURE_GUIDE-zh_CN.md`
+- `handson/DEPLOY_GUIDE_GUI-zh_CN.md`
 - `handson/DEPLOY_GUIDE-zh_CN.md`
 - `infra/README.md`
