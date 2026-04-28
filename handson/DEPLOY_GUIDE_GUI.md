@@ -61,6 +61,9 @@ Important for workshop users:
 
 Create all Azure resources first. You will need resource IDs and configuration details to configure GitHub Actions later.
 
+> Note: If your Portal display language is Japanese or Chinese, some services may not appear when searched by English names. In that case, search using the localized service name shown in your UI.
+> Examples: `Resource groups` / `リソース グループ` / `资源组`, `Virtual networks` / `仮想ネットワーク` / `虚拟网络`, `Container Apps` / `コンテナー アプリ` / `容器应用`
+
 ### Architecture Overview
 
 The following diagram shows how all components are deployed in your Azure environment:
@@ -227,6 +230,8 @@ Reference: [Create and manage agent pools in ACR Tasks](https://learn.microsoft.
 
 1. Open Azure Cloud Shell and run the following command
 
+   > Make sure Cloud Shell is set to **PowerShell** (commands in this guide use PowerShell syntax).
+
    ```powershell
    # Replace with your resource group name from Step 1.1
    $resourceGroupName = "rg-todomanagement-dev"
@@ -250,6 +255,8 @@ Reference: [Create and manage agent pools in ACR Tasks](https://learn.microsoft.
 Reference: [Create your first container app with Container Apps - Azure Portal (MS Learn)](https://learn.microsoft.com/en-us/azure/container-apps/quickstart-portal)
 
 Create the API Container App first. This step also creates the Container Apps Environment.
+
+> Recommendation: Keep the Container App names as `app-todomanagement-api` and `app-todomanagement-web`. If you use different names, you must additionally update redirect URLs in Microsoft Entra ID app registration and GitHub Repository variables in later steps.
 
 1. In Azure Portal, go to **Home** > search for **Container Apps**
 2. Click **Create** > **Container App**
