@@ -139,7 +139,7 @@ az acr build \
 
 - `src/web` 是 build context
 - Web image 不需要在 build 时传入 `VITE_AZURE_CLIENT_ID`、`VITE_AZURE_AUTHORITY`、`VITE_AZURE_REDIRECT_URI`
-- 这些值由学员创建 Web Container App 时作为环境变量设置
+- 学员创建 Web Container App 时只需要设置 client ID 和 authority。Redirect URI 默认使用当前 Web app URL。
 
 ---
 
@@ -234,7 +234,8 @@ Web image 已支持运行时配置。学员创建 Web Container App 时设置：
 | `API_PROXY_TARGET` | `https://app-todomanagement-api.internal.<environment-domain>.azurecontainerapps.io` |
 | `VITE_AZURE_CLIENT_ID` | Microsoft Entra ID app registration client ID |
 | `VITE_AZURE_AUTHORITY` | `https://login.microsoftonline.com/<tenant-id>` |
-| `VITE_AZURE_REDIRECT_URI` | `https://app-todomanagement-web.<environment-domain>.azurecontainerapps.io` |
+
+`VITE_AZURE_REDIRECT_URI` 是可选项。不设置时，Web app 会使用当前浏览器访问地址作为 redirect URI。
 
 API image 不需要在 build 时写入环境变量。学员创建 API Container App 时按 hands-on guide 设置数据库、managed identity 相关变量。
 
@@ -279,7 +280,8 @@ ls src/api/Dockerfile src/web/Dockerfile
 
 - `VITE_AZURE_CLIENT_ID`
 - `VITE_AZURE_AUTHORITY`
-- `VITE_AZURE_REDIRECT_URI`
+
+同时确认学员当前打开的 Web URL 已添加到 Microsoft Entra ID app registration 的 redirect URI。
 
 ### 学员无法拉取镜像
 

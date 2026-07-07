@@ -1,6 +1,7 @@
 import { PublicClientApplication, Configuration, BrowserCacheLocation } from '@azure/msal-browser'
 
 const runtimeConfig = window.__APP_CONFIG__ ?? {}
+const defaultRedirectUri = window.location.origin
 
 const getConfigValue = (runtimeValue: string | undefined, buildValue: string | undefined, fallback: string) =>
   runtimeValue || buildValue || fallback
@@ -21,7 +22,7 @@ export const msalConfig: Configuration = {
     redirectUri: getConfigValue(
       runtimeConfig.VITE_AZURE_REDIRECT_URI,
       import.meta.env.VITE_AZURE_REDIRECT_URI,
-      'http://localhost:5173'
+      defaultRedirectUri
     ),
     postLogoutRedirectUri: '/',
   },

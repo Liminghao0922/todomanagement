@@ -18,7 +18,7 @@ Use the following terms consistently across all language versions:
 
 Notes:
 
-- In the API Container App environment variables, `AZURE_CLIENT_ID` means the user-assigned managed identity client ID used for PostgreSQL authentication.
+- In the API Container App environment variables, `USER_ASSIGNED_IDENTITY_CLIENT_ID` means the user-assigned managed identity client ID used for PostgreSQL authentication.
 - For web sign-in, use the Microsoft Entra ID application client ID and tenant/authority values provided by the instructor or created in this guide.
 
 ---
@@ -69,7 +69,7 @@ Before creating Azure resources, collect the image and configuration values from
 | Web image | `instructoracr.azurecr.io/todomanagement-web:latest` | Used by the web Container App |
 | Registry login server | `instructoracr.azurecr.io` | Required when selecting the image |
 | Registry username/password | Provided by instructor, if needed | Not required for public images or managed-identity based pulls |
-| Web authentication variable names | Provided by instructor | This guide uses `VITE_AZURE_CLIENT_ID`, `VITE_AZURE_AUTHORITY`, and `VITE_AZURE_REDIRECT_URI` |
+| Web authentication variable names | Provided by instructor | This guide uses `VITE_AZURE_CLIENT_ID` and `VITE_AZURE_AUTHORITY`. `VITE_AZURE_REDIRECT_URI` is optional and defaults to the current web app URL. |
 
 > Instructor note: To keep the hands-on simple, prepare and test both images before the workshop. For the ACR remote build preparation steps, see [INSTRUCTOR_PREP_GUIDE.md](INSTRUCTOR_PREP_GUIDE.md). For this simplified Portal flow, the web image should read Microsoft Entra ID settings from runtime environment variables so learners can enter those values while creating the Container App.
 
@@ -159,11 +159,12 @@ Click **Add a subnet** and create two subnets:
 
 - **Name**: `snet-container-apps`
 - **Subnet address range**: `10.0.1.0/24` (256 addresses)
+- **Private subnet**: Unselected
 - **Subnet Delegation**: `Microsoft.App/environments`
 - **Other settings**: Leave the defaults
 - Click **Add**
 
-![Create subnet for container app environment](image/DEPLOY_GUIDE_GUI/1776058038608.png)
+![Create subnet for container app environment](images/add-snet-container-apps.png)
 
 #### Subnet 2: PostgreSQL subnet
 
@@ -205,7 +206,6 @@ This identity will be used by the API container to access PostgreSQL.
 **Next: Note down:**
 
 - **Client ID** (under Overview)
-- **Resource ID** (under Properties)
 
 ---
 
@@ -221,7 +221,7 @@ Reference: [Create a server - Azure Database for PostgreSQL Flexible Server (MS 
    - **Server name**: Enter a name (example: `pg-todomanagement-dev`)
    - **Region**: Same as resource group
    - **PostgreSQL version**: Select `17`
-   - **Workload type**: Select `Development`
+   - **Workload type**: Select `Dev/Test`
    - **Compute + storage**: Keep default for development
    - **Authentication method**: Select `Microsoft Entra authentication only`
    - **Microsoft Entra administrator**: Select your user.
@@ -283,7 +283,7 @@ Create the app registration before creating the web Container App so you can ent
    - **Supported account types**: Select **Accounts in this organizational directory only**
    - **Redirect URI**: Leave this blank for now. You will add it in Step 4.2 after the web Container App URL is created.
 5. Click **Register**
-   ![Register app for the web authentication](image/DEPLOY_GUIDE_GUI/1776071479250.png)
+   ![Register app for the web authentication](images/register-an-application.png)
 6. The app is now registered. Note down:
    - **Application (client) ID** (Overview page)
    - **Directory (tenant) ID** (Overview page)
@@ -339,36 +339,34 @@ Create the API Container App first. This step also creates the Container Apps En
 5. On the **Container** page, enter the instructor-provided API image:
 
    - **Name**: Enter `app-todomanagement-api`
-   - **Image source**: select `Docker Hub or other registries`
-   - **Image type**: select `Public` or `Private` according to the instructor's registry
-   - **Registry login server**: enter the instructor-provided registry login server
-   - **Image and tag**: enter the instructor-provided API image and tag (example: `todomanagement-api:latest`)
-   - If the image is private, enter the registry credentials provided by the instructor
+   - **Image source**: select `Azure Container Registry`
+   - **Image and tag**: enter the instructor-provided API image and tag (example: `todomanagement-api:workshop-20260707`)
    - Leave other settings as default
+![Select container image](image/DEPLOY_GUIDE_GUI/1783410897343.png)
 
 6. Add environment variables for the API container:
 
 | Name | Value |
 | ---- | ----- |
-| `AZURE_CLIENT_ID` | Managed Identity Client ID from Step 2.3 |
 | `USER_ASSIGNED_IDENTITY_CLIENT_ID` | Managed Identity Client ID from Step 2.3 |
 | `POSTGRES_SERVER` | PostgreSQL server endpoint from Step 2.4 |
 | `POSTGRES_DB` | `tododb` |
 | `POSTGRES_USER` | Managed Identity name from Step 2.3, for example `uai-todomanagement-api` |
 | `DATABASE_TYPE` | `postgresql` |
 | `ENVIRONMENT` | `production` |
+![Select api container env vars](images/setup-api-container-env-vars.png)
 
-7. Click **Next: Ingress**
-8. On the **Ingress** page:
+1. Click **Next: Ingress**
+2. On the **Ingress** page:
    - **Ingress**: make sure it is enabled
    - **Ingress traffic**: select `Limited to Container Apps Environment`
    - **Target port**: enter `8000`
    - Leave other settings as default
      ![Config ingress settings](image/DEPLOY_GUIDE_GUI/1776150314554.png)
-9. Click **Review + Create** -> **Create**
-10. Wait for deployment (usually 4-5 minutes)
-11. After the deployment is complete, click **Go to resource** to navigate to the created app.
-12. On the **Overview** page, note down the **Application URL** for the API app (example: `https://app-todomanagement-api.internal.politebay-d0fe95ab.japaneast.azurecontainerapps.io`)
+3. Click **Review + Create** -> **Create**
+4.  Wait for deployment (usually 4-5 minutes)
+5.  After the deployment is complete, click **Go to resource** to navigate to the created app.
+6.  On the **Overview** page, note down the **Application URL** for the API app (example: `https://app-todomanagement-api.internal.politebay-d0fe95ab.japaneast.azurecontainerapps.io`)
 
 Next: Note down your Container Apps Environment name and the API app Application URL.
 
@@ -394,24 +392,23 @@ Next: Note down your Container Apps Environment name and the API app Application
 5. On the **Container** page, enter the instructor-provided web image:
 
    - **Name**: Enter `app-todomanagement-web`
-   - **Image source**: select `Docker Hub or other registries`
-   - **Image type**: select `Public` or `Private` according to the instructor's registry
-   - **Registry login server**: enter the instructor-provided registry login server
-   - **Image and tag**: enter the instructor-provided web image and tag (example: `todomanagement-web:latest`)
+   - **Image source**: select `Azure Container Registry`
+   - **Image and tag**: enter the instructor-provided web image and tag (example: `todomanagement-web:workshop-20260707`)
    - **CPU and memory**: select `0.25 CPU cores, 0.5 Gi memory`
    - If the image is private, enter the registry credentials provided by the instructor
 
-6. Add this environment variable for the web container:
+6. Add these environment variables for the web container:
 
-Use the internal API URL from Step 2.7 to identify the Container Apps environment domain. For example, if the API URL is `https://app-todomanagement-api.internal.politebay-d0fe95ab.japaneast.azurecontainerapps.io`, the expected web URL is `https://app-todomanagement-web.politebay-d0fe95ab.japaneast.azurecontainerapps.io`.
+Use the internal API URL from Step 2.7 for `API_PROXY_TARGET`.
 
 | Name | Value |
 | ---- | ----- |
 | `API_PROXY_TARGET` | Internal API Container App URL from Step 2.7 |
 | `VITE_AZURE_CLIENT_ID` | Entra ID App Client ID from Step 2.6 |
 | `VITE_AZURE_AUTHORITY` | `https://login.microsoftonline.com/<tenant-id>` using the Entra ID App Tenant ID from Step 2.6 |
-| `VITE_AZURE_REDIRECT_URI` | Expected web Container App URL |
 
+> `VITE_AZURE_REDIRECT_URI` is optional. Leave it unset for the standard workshop flow; the web app uses the current browser address as the redirect URI. Only set it if the instructor asks you to override the redirect URL.
+>
 > If the instructor uses different variable names in the prepared web image, use the instructor-provided names instead.
 
 7. Click **Next: Ingress**
@@ -445,7 +442,6 @@ Before moving to Phase 3, collect all the following information from your Azure 
 - **PostgreSQL Database**: `tododb`
 - **Managed Identity Name**: `uai-todomanagement-api`
 - **Managed Identity Client ID**: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
-- **Managed Identity Resource ID**: `/subscriptions/.../resourceGroups/.../providers/Microsoft.ManagedIdentity/userAssignedIdentities/uai-todomanagement-api`
 - **Entra ID App Client ID**: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
 - **Entra ID App Tenant ID**: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
 - **API image**: instructor-provided API image and tag
@@ -472,7 +468,6 @@ Before testing the application, verify that the two Container Apps are using the
 
 | Name | Expected value |
 | ---- | -------------- |
-| `AZURE_CLIENT_ID` | Managed Identity Client ID |
 | `USER_ASSIGNED_IDENTITY_CLIENT_ID` | Managed Identity Client ID |
 | `POSTGRES_SERVER` | PostgreSQL server endpoint |
 | `POSTGRES_DB` | `tododb` |
@@ -494,7 +489,8 @@ Before testing the application, verify that the two Container Apps are using the
 | `API_PROXY_TARGET` | Internal API Container App URL from Step 2.7 |
 | `VITE_AZURE_CLIENT_ID` | Entra ID App Client ID from Step 2.6 |
 | `VITE_AZURE_AUTHORITY` | `https://login.microsoftonline.com/<tenant-id>` |
-| `VITE_AZURE_REDIRECT_URI` | Expected web Container App URL |
+
+`VITE_AZURE_REDIRECT_URI` is optional. If it is not set, the web app uses the current browser address as the redirect URI.
 
 ---
 
@@ -532,7 +528,7 @@ Now that the web Container App URL is available, add it to the Microsoft Entra I
 
 1. Open `app-todomanagement-web`
 2. Confirm `API_PROXY_TARGET` is the internal API URL from Step 4.1
-3. Confirm `VITE_AZURE_REDIRECT_URI` matches the web Container App URL from Step 4.1. If it does not match, update the environment variable and create a new revision before testing.
+3. Confirm `VITE_AZURE_CLIENT_ID` and `VITE_AZURE_AUTHORITY` match the Entra ID app registration from Step 2.6
 4. Open `app-todomanagement-api`
 5. Confirm `POSTGRES_SERVER`, `POSTGRES_DB`, `POSTGRES_USER`, and `USER_ASSIGNED_IDENTITY_CLIENT_ID` match the values collected in Step 2.9
 
@@ -615,7 +611,7 @@ Your Todo Management application is now deployed on Azure.
 **Solution:**
 
 - Verify the web image's Microsoft Entra ID client ID and tenant/authority configuration with the instructor
-- Check the web redirect URI configuration matches the exact URL registered in Entra ID (Step 4.2)
+- Check the web URL you opened matches the exact redirect URI registered in Entra ID (Step 4.2)
 - Ensure redirect URI in Entra ID has `https://` scheme
 - Check access tokens and ID tokens are enabled in Entra ID (Step 4.2)
 

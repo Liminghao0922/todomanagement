@@ -139,7 +139,7 @@ az acr build \
 
 - `src/web` が build context
 - Web image のビルド時に `VITE_AZURE_CLIENT_ID`、`VITE_AZURE_AUTHORITY`、`VITE_AZURE_REDIRECT_URI` を渡す必要はありません
-- これらの値は、受講者が Web Container App を作成するときに環境変数として設定します
+- 受講者は Web Container App 作成時に client ID と authority を環境変数として設定します。Redirect URI は現在の Web app URL が既定値になります。
 
 ---
 
@@ -234,7 +234,8 @@ Web image は runtime configuration に対応しています。受講者が Web 
 | `API_PROXY_TARGET` | `https://app-todomanagement-api.internal.<environment-domain>.azurecontainerapps.io` |
 | `VITE_AZURE_CLIENT_ID` | Microsoft Entra ID app registration client ID |
 | `VITE_AZURE_AUTHORITY` | `https://login.microsoftonline.com/<tenant-id>` |
-| `VITE_AZURE_REDIRECT_URI` | `https://app-todomanagement-web.<environment-domain>.azurecontainerapps.io` |
+
+`VITE_AZURE_REDIRECT_URI` は任意です。未設定の場合、Web app は現在ブラウザーで開いている URL を redirect URI として使用します。
 
 API image は build 時に環境変数を書き込む必要はありません。受講者は API Container App 作成時に hands-on guide に従って、データベースと managed identity 関連の環境変数を設定します。
 
@@ -279,7 +280,8 @@ ls src/api/Dockerfile src/web/Dockerfile
 
 - `VITE_AZURE_CLIENT_ID`
 - `VITE_AZURE_AUTHORITY`
-- `VITE_AZURE_REDIRECT_URI`
+
+あわせて、受講者が開いている Web URL が Microsoft Entra ID app registration の redirect URI に追加されていることを確認します。
 
 ### 受講者がイメージを pull できない
 

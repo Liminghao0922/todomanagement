@@ -139,7 +139,7 @@ Notes:
 
 - `src/web` is the build context
 - The Web image does not need `VITE_AZURE_CLIENT_ID`, `VITE_AZURE_AUTHORITY`, or `VITE_AZURE_REDIRECT_URI` at build time
-- Learners set these values as environment variables when creating the Web Container App
+- Learners set the client ID and authority as environment variables when creating the Web Container App. The redirect URI defaults to the current web app URL.
 
 ---
 
@@ -234,7 +234,8 @@ The Web image supports runtime configuration. Learners set these values when cre
 | `API_PROXY_TARGET` | `https://app-todomanagement-api.internal.<environment-domain>.azurecontainerapps.io` |
 | `VITE_AZURE_CLIENT_ID` | Microsoft Entra ID app registration client ID |
 | `VITE_AZURE_AUTHORITY` | `https://login.microsoftonline.com/<tenant-id>` |
-| `VITE_AZURE_REDIRECT_URI` | `https://app-todomanagement-web.<environment-domain>.azurecontainerapps.io` |
+
+`VITE_AZURE_REDIRECT_URI` is optional. If it is not set, the web app uses the current browser address as the redirect URI.
 
 The API image does not need environment variables baked in at build time. Learners set database and managed identity variables while creating the API Container App, following the hands-on guide.
 
@@ -279,7 +280,8 @@ Confirm that learners set these environment variables on the Web Container App a
 
 - `VITE_AZURE_CLIENT_ID`
 - `VITE_AZURE_AUTHORITY`
-- `VITE_AZURE_REDIRECT_URI`
+
+Also confirm that the web URL they opened is registered as a redirect URI in the Microsoft Entra ID app registration.
 
 ### Learners Cannot Pull Images
 
