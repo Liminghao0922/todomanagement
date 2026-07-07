@@ -11,18 +11,11 @@ RUN npm install --legacy-peer-deps
 
 # Copy source code
 COPY env.d.ts index.html vite.config.ts tsconfig.json tsconfig.node.json ./
+COPY public ./public
 COPY src ./src
 
-# Build parameters for Vite
-ARG VITE_AZURE_CLIENT_ID
-ARG VITE_AZURE_AUTHORITY
-ARG VITE_AZURE_REDIRECT_URI
-
-# Build Vue app with environment variables
-RUN VITE_AZURE_CLIENT_ID=${VITE_AZURE_CLIENT_ID} \
-    VITE_AZURE_AUTHORITY=${VITE_AZURE_AUTHORITY} \
-    VITE_AZURE_REDIRECT_URI=${VITE_AZURE_REDIRECT_URI} \
-    npm run build
+# Build Vue app. Authentication settings are injected at container startup.
+RUN npm run build
 
 # Runtime stage - Serve SPA and proxy /api to the internal backend
 FROM nginx:1.27-alpine

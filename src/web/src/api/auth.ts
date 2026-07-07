@@ -1,11 +1,28 @@
 import { PublicClientApplication, Configuration, BrowserCacheLocation } from '@azure/msal-browser'
 
+const runtimeConfig = window.__APP_CONFIG__ ?? {}
+
+const getConfigValue = (runtimeValue: string | undefined, buildValue: string | undefined, fallback: string) =>
+  runtimeValue || buildValue || fallback
+
 // MSAL 配置 - 需要替换为实际的 Azure Entra ID 配置
 export const msalConfig: Configuration = {
   auth: {
-    clientId: import.meta.env.VITE_AZURE_CLIENT_ID || '00000000-0000-0000-0000-000000000000',
-    authority: import.meta.env.VITE_AZURE_AUTHORITY || 'https://login.microsoftonline.com/common',
-    redirectUri: import.meta.env.VITE_AZURE_REDIRECT_URI || 'http://localhost:5173',
+    clientId: getConfigValue(
+      runtimeConfig.VITE_AZURE_CLIENT_ID,
+      import.meta.env.VITE_AZURE_CLIENT_ID,
+      '00000000-0000-0000-0000-000000000000'
+    ),
+    authority: getConfigValue(
+      runtimeConfig.VITE_AZURE_AUTHORITY,
+      import.meta.env.VITE_AZURE_AUTHORITY,
+      'https://login.microsoftonline.com/common'
+    ),
+    redirectUri: getConfigValue(
+      runtimeConfig.VITE_AZURE_REDIRECT_URI,
+      import.meta.env.VITE_AZURE_REDIRECT_URI,
+      'http://localhost:5173'
+    ),
     postLogoutRedirectUri: '/',
   },
   cache: {
