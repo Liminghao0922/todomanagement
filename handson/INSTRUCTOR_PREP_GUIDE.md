@@ -91,15 +91,17 @@ az acr create \
   --sku Basic
 ```
 
-To simplify learner operations in the workshop, you can temporarily enable the ACR admin user. Learners can then enter registry username/password on the Container Apps creation page.
+Keep the ACR admin user disabled. In this workshop, Container Apps should pull images from ACR by using their system-assigned managed identities.
 
 ```bash
-az acr update \
+az acr show \
   --name "$ACR_NAME" \
-  --admin-enabled true
+  --resource-group "$RESOURCE_GROUP" \
+  --query "{loginServer:loginServer, adminUserEnabled:adminUserEnabled}" \
+  --output table
 ```
 
-> After the workshop, disable the admin user or rotate the password. For production, prefer managed identity for image pull.
+> Grant each learner account the Owner role on the instructor ACR before the workshop. The Container App runtime identity still only needs `AcrPull`, but the signed-in learner account needs Owner permission on the ACR scope to create that `AcrPull` role assignment from Azure Portal.
 
 ---
 
@@ -191,41 +193,60 @@ echo "Web image: ${LOGIN_SERVER}/${WEB_IMAGE}"
 
 ---
 
-## 7. Get Information for Learners
+## 7. Prepare ACR Pull Authorization
 
-If you use the ACR admin user:
+When learners create the API and Web Container Apps with system-assigned managed identity enabled, each Container App gets its own principal ID. That identity must have `AcrPull` on the instructor ACR before the revision can pull the private image.
+
+Get the ACR resource ID:
 
 ```bash
-ACR_USERNAME=$(az acr credential show \
+ACR_ID=$(az acr show \
   --name "$ACR_NAME" \
-  --query username \
+  --resource-group "$RESOURCE_GROUP" \
+  --query id \
   --output tsv)
-
-ACR_PASSWORD=$(az acr credential show \
-  --name "$ACR_NAME" \
-  --query passwords[0].value \
-  --output tsv)
-
-echo "Registry login server: ${LOGIN_SERVER}"
-echo "Registry username: ${ACR_USERNAME}"
-echo "Registry password: ${ACR_PASSWORD}"
-echo "API image: ${LOGIN_SERVER}/${API_IMAGE}"
-echo "Web image: ${LOGIN_SERVER}/${WEB_IMAGE}"
 ```
+
+For each learner Container App, get the system-assigned identity principal ID after the app has been created:
+
+```bash
+LEARNER_RESOURCE_GROUP="<learner-resource-group>"
+CONTAINER_APP_NAME="<container-app-name>"
+
+PRINCIPAL_ID=$(az containerapp show \
+  --name "$CONTAINER_APP_NAME" \
+  --resource-group "$LEARNER_RESOURCE_GROUP" \
+  --query identity.principalId \
+  --output tsv)
+```
+
+Grant the Container App identity pull access to the instructor ACR:
+
+```bash
+az role assignment create \
+  --assignee "$PRINCIPAL_ID" \
+  --role AcrPull \
+  --scope "$ACR_ID"
+```
+
+Repeat this for both the API Container App and the Web Container App, because system-assigned identities are different for each app.
+
+---
+
+## 8. Get Information for Learners
 
 Share this information with learners:
 
 | Item | Value |
 | ---- | ----- |
 | Registry login server | `${LOGIN_SERVER}` |
-| Registry username | `${ACR_USERNAME}` |
-| Registry password | `${ACR_PASSWORD}` |
 | API image | `${LOGIN_SERVER}/${API_IMAGE}` |
 | Web image | `${LOGIN_SERVER}/${WEB_IMAGE}` |
+| Image pull authorization | Use the Container App system-assigned managed identity with `AcrPull` on the instructor ACR |
 
 ---
 
-## 8. Web Container App Environment Variables for Learners
+## 9. Web Container App Environment Variables for Learners
 
 The Web image supports runtime configuration. Learners set these values when creating the Web Container App:
 
@@ -241,16 +262,17 @@ The API image does not need environment variables baked in at build time. Learne
 
 ---
 
-## 9. Pre-Workshop Checklist
+## 10. Pre-Workshop Checklist
 
 - ACR has been created
-- ACR admin user has been enabled, or another image pull authentication method is ready
+- ACR admin user is disabled
 - API image remote build succeeded
 - Web image remote build succeeded
 - `todomanagement-api` and `todomanagement-web` tags can be queried
 - Registry login server has been recorded
-- Registry username/password have been recorded
 - Full API/Web image names have been shared with learners
+- Learner accounts have the Owner role on the instructor ACR
+- The process for granting each Container App system-assigned identity `AcrPull` on the instructor ACR is ready
 - Web image does not depend on build-time `VITE_AZURE_*` parameters
 
 ---
@@ -288,6 +310,6 @@ Also confirm that the web URL they opened is registered as a redirect URI in the
 Confirm:
 
 - Container App registry login server is correct
-- username/password are correct
-- ACR admin user is enabled
+- Container App has system-assigned managed identity enabled
+- The Container App identity has the `AcrPull` role on the instructor ACR
 - image name includes the full registry prefix, for example `myacr.azurecr.io/todomanagement-web:workshop-20260706`

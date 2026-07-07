@@ -91,15 +91,17 @@ az acr create \
   --sku Basic
 ```
 
-Workshop で受講者の操作を簡単にするため、一時的に ACR admin user を有効化できます。これにより受講者は Container Apps 作成画面で registry username/password を入力できます。
+ACR admin user は無効のままにします。このワークショップでは、Container Apps が system-assigned managed identity を使って ACR からイメージを pull します。
 
 ```bash
-az acr update \
+az acr show \
   --name "$ACR_NAME" \
-  --admin-enabled true
+  --resource-group "$RESOURCE_GROUP" \
+  --query "{loginServer:loginServer, adminUserEnabled:adminUserEnabled}" \
+  --output table
 ```
 
-> ワークショップ後は admin user を無効化するか、パスワードをローテーションしてください。本番環境では managed identity によるイメージ pull を優先します。
+> ワークショップ前に、各受講者アカウントへ講師 ACR の Owner ロールを付与します。Container App の実行時 identity に必要なのは引き続き `AcrPull` だけですが、受講者が Azure Portal からその `AcrPull` role assignment を作成するには、現在サインインしている受講者アカウントに ACR scope の Owner 権限が必要です。
 
 ---
 
@@ -191,41 +193,60 @@ echo "Web image: ${LOGIN_SERVER}/${WEB_IMAGE}"
 
 ---
 
-## 7. 受講者へ提供する情報を取得する
+## 7. ACR pull 権限を準備する
 
-ACR admin user を使用する場合:
+受講者が API と Web の Container App を system-assigned managed identity 有効で作成すると、それぞれの Container App に principal ID が割り当てられます。private image を pull するには、その identity に講師 ACR への `AcrPull` が必要です。
+
+ACR resource ID を取得します:
 
 ```bash
-ACR_USERNAME=$(az acr credential show \
+ACR_ID=$(az acr show \
   --name "$ACR_NAME" \
-  --query username \
+  --resource-group "$RESOURCE_GROUP" \
+  --query id \
   --output tsv)
-
-ACR_PASSWORD=$(az acr credential show \
-  --name "$ACR_NAME" \
-  --query passwords[0].value \
-  --output tsv)
-
-echo "Registry login server: ${LOGIN_SERVER}"
-echo "Registry username: ${ACR_USERNAME}"
-echo "Registry password: ${ACR_PASSWORD}"
-echo "API image: ${LOGIN_SERVER}/${API_IMAGE}"
-echo "Web image: ${LOGIN_SERVER}/${WEB_IMAGE}"
 ```
+
+各受講者の Container App 作成後、system-assigned identity の principal ID を取得します:
+
+```bash
+LEARNER_RESOURCE_GROUP="<learner-resource-group>"
+CONTAINER_APP_NAME="<container-app-name>"
+
+PRINCIPAL_ID=$(az containerapp show \
+  --name "$CONTAINER_APP_NAME" \
+  --resource-group "$LEARNER_RESOURCE_GROUP" \
+  --query identity.principalId \
+  --output tsv)
+```
+
+Container App identity に、講師 ACR からイメージを pull する権限を付与します:
+
+```bash
+az role assignment create \
+  --assignee "$PRINCIPAL_ID" \
+  --role AcrPull \
+  --scope "$ACR_ID"
+```
+
+API Container App と Web Container App の system-assigned identity は別々なので、両方に対してこの権限付与を行います。
+
+---
+
+## 8. 受講者へ提供する情報を取得する
 
 次の情報を受講者に共有します:
 
 | Item | Value |
 | ---- | ----- |
 | Registry login server | `${LOGIN_SERVER}` |
-| Registry username | `${ACR_USERNAME}` |
-| Registry password | `${ACR_PASSWORD}` |
 | API image | `${LOGIN_SERVER}/${API_IMAGE}` |
 | Web image | `${LOGIN_SERVER}/${WEB_IMAGE}` |
+| Image pull authorization | Container App system-assigned managed identity を使用し、講師 ACR で `AcrPull` を付与する |
 
 ---
 
-## 8. 受講者が Web Container App に設定する環境変数
+## 9. 受講者が Web Container App に設定する環境変数
 
 Web image は runtime configuration に対応しています。受講者が Web Container App を作成するときに設定します:
 
@@ -241,16 +262,17 @@ API image は build 時に環境変数を書き込む必要はありません。
 
 ---
 
-## 9. ワークショップ前チェックリスト
+## 10. ワークショップ前チェックリスト
 
 - ACR 作成済み
-- ACR admin user 有効化済み、または別の image pull 認証方式を準備済み
+- ACR admin user が無効のままであることを確認済み
 - API image の remote build 成功済み
 - Web image の remote build 成功済み
 - `todomanagement-api` と `todomanagement-web` の tags を確認可能
 - registry login server を記録済み
-- registry username/password を記録済み
 - 完全な API/Web image 名を受講者へ共有済み
+- 受講者アカウントに講師 ACR の Owner ロールを付与済み
+- 各 Container App system-assigned identity に講師 ACR の `AcrPull` を付与する手順を準備済み
 - Web image が build-time `VITE_AZURE_*` パラメータに依存していないことを確認済み
 
 ---
@@ -288,6 +310,6 @@ ls src/api/Dockerfile src/web/Dockerfile
 確認項目:
 
 - Container App の registry login server が正しい
-- username/password が正しい
-- ACR admin user が有効化されている
+- Container App で system-assigned managed identity が有効化されている
+- Container App identity に講師 ACR の `AcrPull` ロールが付与されている
 - image 名が完全な registry prefix を含んでいる。例: `myacr.azurecr.io/todomanagement-web:workshop-20260706`

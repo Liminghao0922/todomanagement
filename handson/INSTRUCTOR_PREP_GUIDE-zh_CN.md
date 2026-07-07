@@ -91,15 +91,17 @@ az acr create \
   --sku Basic
 ```
 
-Workshop 为简化学员操作，可以临时启用 ACR admin user，让学员在 Container Apps 创建页面输入 registry username/password。
+保持 ACR admin user 关闭。本 workshop 中，Container Apps 应该使用自己的 system-assigned managed identity 从 ACR 拉取镜像。
 
 ```bash
-az acr update \
+az acr show \
   --name "$ACR_NAME" \
-  --admin-enabled true
+  --resource-group "$RESOURCE_GROUP" \
+  --query "{loginServer:loginServer, adminUserEnabled:adminUserEnabled}" \
+  --output table
 ```
 
-> 课后建议关闭 admin user，或轮换密码。生产环境优先使用 managed identity 拉取镜像。
+> 课前需要给每个学员账号授予讲师 ACR 上的 Owner 角色。Container App 的运行时 identity 仍然只需要 `AcrPull`，但学员在 Azure Portal 中创建这个 `AcrPull` role assignment 时，当前登录的学员账号需要在 ACR scope 上具备 Owner 权限。
 
 ---
 
@@ -191,41 +193,60 @@ echo "Web image: ${LOGIN_SERVER}/${WEB_IMAGE}"
 
 ---
 
-## 7. 取得提供给学员的信息
+## 7. 准备 ACR 拉取授权
 
-如果使用 ACR admin user：
+学员创建 API 和 Web Container App 并启用 system-assigned managed identity 后，每个 Container App 都会有自己的 principal ID。在 revision 能够拉取私有镜像前，需要给这个 identity 授予讲师 ACR 上的 `AcrPull`。
+
+取得 ACR resource ID：
 
 ```bash
-ACR_USERNAME=$(az acr credential show \
+ACR_ID=$(az acr show \
   --name "$ACR_NAME" \
-  --query username \
+  --resource-group "$RESOURCE_GROUP" \
+  --query id \
   --output tsv)
-
-ACR_PASSWORD=$(az acr credential show \
-  --name "$ACR_NAME" \
-  --query passwords[0].value \
-  --output tsv)
-
-echo "Registry login server: ${LOGIN_SERVER}"
-echo "Registry username: ${ACR_USERNAME}"
-echo "Registry password: ${ACR_PASSWORD}"
-echo "API image: ${LOGIN_SERVER}/${API_IMAGE}"
-echo "Web image: ${LOGIN_SERVER}/${WEB_IMAGE}"
 ```
+
+每个学员 Container App 创建完成后，取得它的 system-assigned identity principal ID：
+
+```bash
+LEARNER_RESOURCE_GROUP="<learner-resource-group>"
+CONTAINER_APP_NAME="<container-app-name>"
+
+PRINCIPAL_ID=$(az containerapp show \
+  --name "$CONTAINER_APP_NAME" \
+  --resource-group "$LEARNER_RESOURCE_GROUP" \
+  --query identity.principalId \
+  --output tsv)
+```
+
+给这个 Container App identity 授予拉取讲师 ACR 镜像的权限：
+
+```bash
+az role assignment create \
+  --assignee "$PRINCIPAL_ID" \
+  --role AcrPull \
+  --scope "$ACR_ID"
+```
+
+API Container App 和 Web Container App 的 system-assigned identity 不同，所以两个 app 都需要分别授权。
+
+---
+
+## 8. 取得提供给学员的信息
 
 把以下信息发给学员：
 
 | Item | Value |
 | ---- | ----- |
 | Registry login server | `${LOGIN_SERVER}` |
-| Registry username | `${ACR_USERNAME}` |
-| Registry password | `${ACR_PASSWORD}` |
 | API image | `${LOGIN_SERVER}/${API_IMAGE}` |
 | Web image | `${LOGIN_SERVER}/${WEB_IMAGE}` |
+| Image pull authorization | 使用 Container App system-assigned managed identity，并在讲师 ACR 上授予 `AcrPull` |
 
 ---
 
-## 8. 学员需要设置的 Web Container App 环境变量
+## 9. 学员需要设置的 Web Container App 环境变量
 
 Web image 已支持运行时配置。学员创建 Web Container App 时设置：
 
@@ -241,16 +262,17 @@ API image 不需要在 build 时写入环境变量。学员创建 API Container 
 
 ---
 
-## 9. 课前检查清单
+## 10. 课前检查清单
 
 - ACR 已创建
-- ACR admin user 已启用，或已准备其他 image pull 认证方式
+- ACR admin user 保持关闭
 - API image 已 remote build 成功
 - Web image 已 remote build 成功
 - `todomanagement-api` 和 `todomanagement-web` tags 可查询
 - 已记录 registry login server
-- 已记录 registry username/password
 - 已把完整 API/Web image 名称发给学员
+- 学员账号已在讲师 ACR 上获得 Owner 角色
+- 已准备好给每个 Container App system-assigned identity 授予讲师 ACR `AcrPull` 的流程
 - Web image 不依赖 build-time `VITE_AZURE_*` 参数
 
 ---
@@ -288,6 +310,6 @@ ls src/api/Dockerfile src/web/Dockerfile
 确认：
 
 - Container App registry login server 正确
-- username/password 正确
-- ACR admin user 已启用
+- Container App 已启用 system-assigned managed identity
+- Container App identity 已在讲师 ACR 上获得 `AcrPull` 角色
 - image 名称包含完整 registry 前缀，例如 `myacr.azurecr.io/todomanagement-web:workshop-20260706`
