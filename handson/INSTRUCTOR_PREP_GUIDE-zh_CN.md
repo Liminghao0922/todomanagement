@@ -101,7 +101,7 @@ az acr show \
   --output table
 ```
 
-> 课前需要给每个学员账号授予讲师 ACR 上的 Owner 角色。Container App 的运行时 identity 仍然只需要 `AcrPull`，但学员在 Azure Portal 中创建这个 `AcrPull` role assignment 时，当前登录的学员账号需要在 ACR scope 上具备 Owner 权限。
+> 课前需要给每个学员账号授予讲师 ACR 上的 Owner 角色。这是为了 workshop 快速落地，让学员可以在 Azure Portal 中自行创建所需的 `AcrPull` role assignment，而不需要讲师逐个介入。Container App 的运行时 identity 仍然只需要 `AcrPull`。生产环境建议遵循最小权限原则：不要给应用使用者广泛的 Owner 权限，应由平台负责人或自动化流程只给指定的 Container App managed identity 授予 `AcrPull`。
 
 ---
 
@@ -193,47 +193,7 @@ echo "Web image: ${LOGIN_SERVER}/${WEB_IMAGE}"
 
 ---
 
-## 7. 准备 ACR 拉取授权
-
-学员创建 API 和 Web Container App 并启用 system-assigned managed identity 后，每个 Container App 都会有自己的 principal ID。在 revision 能够拉取私有镜像前，需要给这个 identity 授予讲师 ACR 上的 `AcrPull`。
-
-取得 ACR resource ID：
-
-```bash
-ACR_ID=$(az acr show \
-  --name "$ACR_NAME" \
-  --resource-group "$RESOURCE_GROUP" \
-  --query id \
-  --output tsv)
-```
-
-每个学员 Container App 创建完成后，取得它的 system-assigned identity principal ID：
-
-```bash
-LEARNER_RESOURCE_GROUP="<learner-resource-group>"
-CONTAINER_APP_NAME="<container-app-name>"
-
-PRINCIPAL_ID=$(az containerapp show \
-  --name "$CONTAINER_APP_NAME" \
-  --resource-group "$LEARNER_RESOURCE_GROUP" \
-  --query identity.principalId \
-  --output tsv)
-```
-
-给这个 Container App identity 授予拉取讲师 ACR 镜像的权限：
-
-```bash
-az role assignment create \
-  --assignee "$PRINCIPAL_ID" \
-  --role AcrPull \
-  --scope "$ACR_ID"
-```
-
-API Container App 和 Web Container App 的 system-assigned identity 不同，所以两个 app 都需要分别授权。
-
----
-
-## 8. 取得提供给学员的信息
+## 7. 取得提供给学员的信息
 
 把以下信息发给学员：
 
@@ -242,11 +202,10 @@ API Container App 和 Web Container App 的 system-assigned identity 不同，�
 | Registry login server | `${LOGIN_SERVER}` |
 | API image | `${LOGIN_SERVER}/${API_IMAGE}` |
 | Web image | `${LOGIN_SERVER}/${WEB_IMAGE}` |
-| Image pull authorization | 使用 Container App system-assigned managed identity，并在讲师 ACR 上授予 `AcrPull` |
 
 ---
 
-## 9. 学员需要设置的 Web Container App 环境变量
+## 8. 学员需要设置的 Web Container App 环境变量
 
 Web image 已支持运行时配置。学员创建 Web Container App 时设置：
 
@@ -262,7 +221,7 @@ API image 不需要在 build 时写入环境变量。学员创建 API Container 
 
 ---
 
-## 10. 课前检查清单
+## 9. 课前检查清单
 
 - ACR 已创建
 - ACR admin user 保持关闭
@@ -272,8 +231,6 @@ API image 不需要在 build 时写入环境变量。学员创建 API Container 
 - 已记录 registry login server
 - 已把完整 API/Web image 名称发给学员
 - 学员账号已在讲师 ACR 上获得 Owner 角色
-- 已准备好给每个 Container App system-assigned identity 授予讲师 ACR `AcrPull` 的流程
-- Web image 不依赖 build-time `VITE_AZURE_*` 参数
 
 ---
 

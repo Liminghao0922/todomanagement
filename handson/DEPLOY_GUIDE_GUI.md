@@ -92,10 +92,8 @@ The following diagram shows how all components are deployed in your Azure enviro
 
 **Architecture highlights:**
 
-- User accesses the web application through Container Apps
 - Web and API containers run in the same Container Apps Environment within a Virtual Network
 - API uses managed identity to securely access PostgreSQL database
-- Instructor-provided container images are deployed directly to Container Apps
 - All network traffic flows through subnets within the Virtual Network
 - Microsoft Entra ID handles user authentication
 

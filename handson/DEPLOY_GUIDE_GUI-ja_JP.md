@@ -92,10 +92,8 @@ Azure Portal からすべての Azure リソースを作成します。準備済
 
 **アーキテクチャの特徴:**
 
-- ユーザーは Container Apps を通じて Web アプリケーションにアクセスします
 - Web と API コンテナーは、Virtual Network 内の同じ Container Apps Environment で実行されます
 - API は managed identity を使用して PostgreSQL データベースに安全にアクセスします
-- 講師から提供されたコンテナーイメージを Container Apps に直接デプロイします
 - すべてのネットワークトラフィックは Virtual Network 内のサブネットを通ります
 - Microsoft Entra ID がユーザー認証を処理します
 

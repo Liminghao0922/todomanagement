@@ -92,10 +92,8 @@
 
 **架构亮点:**
 
-- 用户通过 Container Apps 访问 Web 应用
 - Web 和 API 容器在 Virtual Network 内的同一 Container Apps Environment 中运行
 - API 使用 managed identity 安全访问 PostgreSQL 数据库
-- 讲师提供的容器镜像会直接部署到 Container Apps
 - 所有网络流量通过 Virtual Network 内的子网流动
 - Microsoft Entra ID 处理用户认证
 
