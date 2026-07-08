@@ -38,7 +38,7 @@
 ## 先决条件
 
 - Azure 订阅权限: `Owner`
-- 讲师 ACR 上的 Owner 角色，这样当前登录的 Azure Portal 账号才能给 Container App 的 system-assigned identity 授予 `AcrPull`
+- 讲师 ACR 上的 Owner 角色，这样当前登录的 Azure Portal 账号才能给 Container Apps Environment 的 system-assigned identity 授予 `AcrPull`
 - Microsoft Entra ID 应用注册创建权限:
   - `Application Administrator`、`Cloud Application Administrator` 或 `Application Developer` 角色
   - 如果您的组织允许所有用户注册应用 (默认设置)，则不需要特殊角色
@@ -341,8 +341,8 @@ Virtual Network 为资源提供隔离的网络空间。请为不同工作负载�
    - **Name**: 输入 `app-todomanagement-api`
    - **Image source**: 选择 `Azure Container Registry`
    - **Image and tag**: 输入讲师提供的 API image 和 tag (示例: `todomanagement-api:workshop-20260707`)
-   - 使用 system-assigned managed identity 进行 registry authentication。不要输入 registry username/password。
-   - 如果 Portal 要求设置 registry authentication，选择 `Managed identity` 和 `System assigned`。
+   - **Authentication type**: `Managed identity`
+   - **Managed identity**: 选择 `System assigned Identity (environment)`
    - 其他设置保持默认值
 ![选择容器镜像](image/DEPLOY_GUIDE_GUI/1783410897343.png)
 
@@ -358,21 +358,21 @@ Virtual Network 为资源提供隔离的网络空间。请为不同工作负载�
 | `ENVIRONMENT` | `production` |
 ![设置 API container 环境变量](images/setup-api-container-env-vars.png)
 
-1. 点击 **Next: Ingress**
-2. 在 **Ingress** 页面:
+7. 点击 **Next: Ingress**
+8. 在 **Ingress** 页面:
    - **Ingress**: 确保已启用
    - **Ingress traffic**: 选择 `Limited to Container Apps Environment`
    - **Target port**: 输入 `8000`
    - 其他设置保持默认值
      ![配置 ingress 设置](images/setup-api-container-ingress.png)
-3. 点击 **Review + Create** -> **Create**
-4. 等待部署完成 (通常 4-5 分钟)
-5. 部署完成后，点击 **Go to resource** 进入创建的应用
-6. 在 **Overview** 页面，记下 API app 的 **Application URL** (示例: `https://app-todomanagement-api.internal.politebay-d0fe95ab.japaneast.azurecontainerapps.io`)
+9. 点击 **Review + Create** -> **Create**
+10. 等待部署完成 (通常 4-5 分钟)
+11. 部署完成后，点击 **Go to resource** 进入创建的应用
+12. 在 **Overview** 页面，记下 API app 的 **Application URL** (示例: `https://app-todomanagement-api.internal.politebay-d0fe95ab.japaneast.azurecontainerapps.io`)
 
-继续前，打开 API Container App 的 **Identity**，确认 **System assigned** 为 `On`。使用当前登录的 Azure Portal 账号 (该账号应在讲师 ACR 上具有 Owner 权限)，为这个 **Object (principal) ID** 授予 `AcrPull`。
-
-接下来: 记下 Container Apps Environment 名称和 API app Application URL。
+13. 在 API Container App 的 **Identity** 页面，打开 **User assigned**，点击 **Add**，选择步骤 2.3 中创建的 user-assigned managed identity，然后点击 **Add**。
+   ![配置 identity 设置](images/setup-api-container-security.png)
+   > API container 会使用这个 identity 认证到 PostgreSQL。
 
 ---
 
@@ -399,8 +399,8 @@ Virtual Network 为资源提供隔离的网络空间。请为不同工作负载�
    - **Image source**: 选择 `Azure Container Registry`
    - **Image and tag**: 输入讲师提供的 web image 和 tag (示例: `todomanagement-web:workshop-20260707`)
    - **CPU and memory**: 选择 `0.25 CPU cores, 0.5 Gi memory`
-   - 使用 system-assigned managed identity 进行 registry authentication。不要输入 registry username/password。
-   - 如果 Portal 要求设置 registry authentication，选择 `Managed identity` 和 `System assigned`。
+   - 使用 managed identity 进行 registry authentication。不要输入 registry username/password。
+   - 如果 Portal 要求设置 registry authentication，选择 `Managed identity` 和 `System assigned`。这会使用 Container Apps Environment 的 system-assigned identity 拉取镜像。
 
 6. 为 web container 添加以下环境变量:
    `API_PROXY_TARGET` 使用步骤 2.7 中的 internal API URL。
@@ -424,7 +424,7 @@ Virtual Network 为资源提供隔离的网络空间。请为不同工作负载�
 11. 部署完成后，点击 **Go to resource** 进入创建的应用
 12. 在 **Overview** 页面，记下 web app 的 **Application URL** (示例: `https://app-todomanagement-web.politebay-d0fe95ab.japaneast.azurecontainerapps.io`)
 
-继续前，打开 Web Container App 的 **Identity**，确认 **System assigned** 为 `On`。使用当前登录的 Azure Portal 账号 (该账号应在讲师 ACR 上具有 Owner 权限)，为这个 **Object (principal) ID** 授予 `AcrPull`。
+继续前，确认 Container Apps Environment 的 **System assigned** identity 仍为 `On`，并且在讲师 ACR 上具有 `AcrPull`。
 
 接下来: 保留 web Application URL，用于阶段 3 验证。
 
@@ -515,7 +515,7 @@ Web Container App URL 可用后，将它添加到 Microsoft Entra ID app registr
 
 - 确认 image name 和 tag 与讲师提供的值完全一致
 - 确认 registry login server 正确
-- 确认 Container App system-assigned managed identity 在讲师 ACR 上具有 `AcrPull`
+- 确认 Container Apps Environment 的 system-assigned identity 在讲师 ACR 上具有 `AcrPull`
 - 在 Container Apps 的 **Revision management** 中检查最新 revision 是否 active 且 healthy
 
 ### API 无法连接到 PostgreSQL

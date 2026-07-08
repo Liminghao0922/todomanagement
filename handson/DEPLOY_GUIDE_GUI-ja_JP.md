@@ -38,7 +38,7 @@ IaC/Bicep パスについては、`DEPLOY_GUIDE.md` (上級トラック) を参�
 ## 前提条件
 
 - Azure サブスクリプション権限: `Owner`
-- 講師 ACR の Owner ロール。これにより、現在サインインしている Azure Portal アカウントが Container App の system-assigned identity に `AcrPull` を付与できます
+- 講師 ACR の Owner ロール。これにより、現在サインインしている Azure Portal アカウントが Container Apps Environment の system-assigned identity に `AcrPull` を付与できます
 - Microsoft Entra ID でアプリ登録を作成するための権限:
   - `Application Administrator`、`Cloud Application Administrator`、または `Application Developer` ロール
   - 組織がすべてのユーザーにアプリ登録を許可している場合 (デフォルト設定)、特別なロールは不要です
@@ -341,38 +341,38 @@ Web Container App を作成する前に app registration を作成します。�
    - **Name**: `app-todomanagement-api` を入力します
    - **Image source**: `Azure Container Registry` を選択します
    - **Image and tag**: 講師から提供された API image と tag を入力します (例: `todomanagement-api:workshop-20260707`)
-   - registry authentication には system-assigned managed identity を使用します。registry username/password は入力しません。
-   - Portal が registry authentication を求める場合は、`Managed identity` と `System assigned` を選択します。
+   - **Authentication type**: `Managed identity`
+   - **Managed identity**: `System assigned Identity (environment)` を選択します
    - その他の設定はデフォルトのままにします
 ![コンテナーイメージを選択](image/DEPLOY_GUIDE_GUI/1783410897343.png)
 
 6. API container の環境変数を追加します:
 
-| Name | Value |
-| ---- | ----- |
-| `USER_ASSIGNED_IDENTITY_CLIENT_ID` | ステップ 2.3 の Managed Identity Client ID |
-| `POSTGRES_SERVER` | ステップ 2.4 の PostgreSQL server endpoint |
-| `POSTGRES_DB` | `tododb` |
-| `POSTGRES_USER` | ステップ 2.3 の Managed Identity 名。例: `uai-todomanagement-api` |
-| `DATABASE_TYPE` | `postgresql` |
-| `ENVIRONMENT` | `production` |
-![API container の環境変数を設定](images/setup-api-container-env-vars.png)
+   | Name | Value |
+   | ---- | ----- |
+   | `USER_ASSIGNED_IDENTITY_CLIENT_ID` | ステップ 2.3 の Managed Identity Client ID |
+   | `POSTGRES_SERVER` | ステップ 2.4 の PostgreSQL server endpoint |
+   | `POSTGRES_DB` | `tododb` |
+   | `POSTGRES_USER` | ステップ 2.3 の Managed Identity 名。例: `uai-todomanagement-api` |
+   | `DATABASE_TYPE` | `postgresql` |
+   | `ENVIRONMENT` | `production` |
+   ![API container の環境変数を設定](images/setup-api-container-env-vars.png)
 
-1. **Next: Ingress** をクリックします
-2. **Ingress** ページで:
+7. **Next: Ingress** をクリックします
+8. **Ingress** ページで:
    - **Ingress**: 有効になっていることを確認します
    - **Ingress traffic**: `Limited to Container Apps Environment` を選択します
    - **Target port**: `8000` を入力します
    - その他の設定はデフォルトのままにします
      ![Ingress 設定](images/setup-api-container-ingress.png)
-3. **Review + Create** -> **Create** をクリックします
-4. デプロイが完了するまで待ちます (通常 4-5 分)
-5. デプロイ完了後、**Go to resource** をクリックして作成されたアプリに移動します
-6. **Overview** ページで、API app の **Application URL** をメモします (例: `https://app-todomanagement-api.internal.politebay-d0fe95ab.japaneast.azurecontainerapps.io`)
+9. **Review + Create** -> **Create** をクリックします
+10. デプロイが完了するまで待ちます (通常 4-5 分)
+11. デプロイ完了後、**Go to resource** をクリックして作成されたアプリに移動します
+12. **Overview** ページで、API app の **Application URL** をメモします (例: `https://app-todomanagement-api.internal.politebay-d0fe95ab.japaneast.azurecontainerapps.io`)
 
-続行する前に、API Container App の **Identity** を開き、**System assigned** が `On` であることを確認します。現在サインインしている Azure Portal アカウント (講師 ACR の Owner 権限を持つ必要があります) を使用し、この **Object (principal) ID** に `AcrPull` を割り当てます。
-
-次: Container Apps Environment 名と API app の Application URL をメモします。
+13. API Container App の **Identity** ページで、**User assigned** を開き、**Add** をクリックして、ステップ 2.3 で作成した user-assigned managed identity を選択し、**Add** をクリックします。
+   ![Identity 設定](images/setup-api-container-security.png)
+   > API container はこの identity を使用して PostgreSQL に認証します。
 
 ---
 
@@ -399,8 +399,8 @@ Web Container App を作成する前に app registration を作成します。�
    - **Image source**: `Azure Container Registry` を選択します
    - **Image and tag**: 講師から提供された web image と tag を入力します (例: `todomanagement-web:workshop-20260707`)
    - **CPU and memory**: `0.25 CPU cores, 0.5 Gi memory` を選択します
-   - registry authentication には system-assigned managed identity を使用します。registry username/password は入力しません。
-   - Portal が registry authentication を求める場合は、`Managed identity` と `System assigned` を選択します。
+   - registry authentication には managed identity を使用します。registry username/password は入力しません。
+   - Portal が registry authentication を求める場合は、`Managed identity` と `System assigned` を選択します。これにより、Container Apps Environment の system-assigned identity を使用してイメージを pull します。
 
 6. Web container に次の環境変数を追加します:
    `API_PROXY_TARGET` にはステップ 2.7 の internal API URL を使用します。
@@ -424,7 +424,7 @@ Web Container App を作成する前に app registration を作成します。�
 11. デプロイ完了後、**Go to resource** をクリックして作成されたアプリに移動します
 12. **Overview** ページで、web app の **Application URL** をメモします (例: `https://app-todomanagement-web.politebay-d0fe95ab.japaneast.azurecontainerapps.io`)
 
-続行する前に、Web Container App の **Identity** を開き、**System assigned** が `On` であることを確認します。現在サインインしている Azure Portal アカウント (講師 ACR の Owner 権限を持つ必要があります) を使用し、この **Object (principal) ID** に `AcrPull` を割り当てます。
+続行する前に、Container Apps Environment の **System assigned** identity が引き続き `On` であり、講師 ACR 上の `AcrPull` が付与されていることを確認します。
 
 次: フェーズ 3 の検証用に web Application URL を保持します。
 
@@ -515,7 +515,7 @@ Todo Management アプリケーションが Azure にデプロイされました
 
 - image name と tag が講師から提供された値と一致していることを確認します
 - registry login server が正しいことを確認します
-- Container App system-assigned managed identity に講師 ACR 上の `AcrPull` が付与されていることを確認します
+- Container Apps Environment の system-assigned identity に講師 ACR 上の `AcrPull` が付与されていることを確認します
 - Container Apps の **Revision management** で最新 revision が active かつ healthy であることを確認します
 
 ### API が PostgreSQL に接続できない

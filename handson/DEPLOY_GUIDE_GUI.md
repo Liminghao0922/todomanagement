@@ -38,7 +38,7 @@ For the IaC/Bicep path, see `DEPLOY_GUIDE.md` (advanced track).
 ## Prerequisites
 
 - Azure subscription permissions: `Owner`
-- Owner role on the instructor ACR, so your signed-in Azure Portal account can grant `AcrPull` to the Container App system-assigned identity
+- Owner role on the instructor ACR, so your signed-in Azure Portal account can grant `AcrPull` to the Container Apps Environment system-assigned identity
 - Microsoft Entra ID permission to create app registrations:
   - `Application Administrator`, `Cloud Application Administrator`, or `Application Developer` role
   - If your organization allows all users to register applications (default setting), no special role is required
@@ -339,38 +339,38 @@ Create the API Container App first. This step also creates the Container Apps En
    - **Name**: Enter `app-todomanagement-api`
    - **Image source**: select `Azure Container Registry`
    - **Image and tag**: enter the instructor-provided API image and tag (example: `todomanagement-api:workshop-20260707`)
-   - Use system-assigned managed identity for registry authentication. Do not enter registry username/password.
-   - If the Portal asks for registry authentication, select `Managed identity` and `System assigned`.
+   - **Authentication type**: `Managed identity`
+   - **Managed identity**: select `System assigned Identity (environment)`
    - Leave other settings as default
 ![Select container image](image/DEPLOY_GUIDE_GUI/1783410897343.png)
 
 6. Add environment variables for the API container:
 
-| Name | Value |
-| ---- | ----- |
-| `USER_ASSIGNED_IDENTITY_CLIENT_ID` | Managed Identity Client ID from Step 2.3 |
-| `POSTGRES_SERVER` | PostgreSQL server endpoint from Step 2.4 |
-| `POSTGRES_DB` | `tododb` |
-| `POSTGRES_USER` | Managed Identity name from Step 2.3, for example `uai-todomanagement-api` |
-| `DATABASE_TYPE` | `postgresql` |
-| `ENVIRONMENT` | `production` |
-![Select api container env vars](images/setup-api-container-env-vars.png)
+   | Name | Value |
+   | ---- | ----- |
+   | `USER_ASSIGNED_IDENTITY_CLIENT_ID` | Managed Identity Client ID from Step 2.3 |
+   | `POSTGRES_SERVER` | PostgreSQL server endpoint from Step 2.4 |
+   | `POSTGRES_DB` | `tododb` |
+   | `POSTGRES_USER` | Managed Identity name from Step 2.3, for example `uai-todomanagement-api` |
+   | `DATABASE_TYPE` | `postgresql` |
+   | `ENVIRONMENT` | `production` |
+   ![Select api container env vars](images/setup-api-container-env-vars.png)
 
-1. Click **Next: Ingress**
-2. On the **Ingress** page:
+7. Click **Next: Ingress**
+8. On the **Ingress** page:
    - **Ingress**: make sure it is enabled
    - **Ingress traffic**: select `Limited to Container Apps Environment`
    - **Target port**: enter `8000`
    - Leave other settings as default
      ![Config ingress settings](images/setup-api-container-ingress.png)
-3. Click **Review + Create** -> **Create**
-4.  Wait for deployment (usually 4-5 minutes)
-5.  After the deployment is complete, click **Go to resource** to navigate to the created app.
-6.  On the **Overview** page, note down the **Application URL** for the API app (example: `https://app-todomanagement-api.internal.politebay-d0fe95ab.japaneast.azurecontainerapps.io`)
+9. Click **Review + Create** -> **Create**
+10. Wait for deployment (usually 4-5 minutes)
+11. After the deployment is complete, click **Go to resource** to navigate to the created app.
+12. On the **Overview** page, note down the **Application URL** for the API app (example: `https://app-todomanagement-api.internal.politebay-d0fe95ab.japaneast.azurecontainerapps.io`)
 
-Before continuing, open **Identity** for the API Container App and confirm **System assigned** is `On`. Use the currently signed-in Azure Portal account, which should have Owner on the instructor ACR, to assign `AcrPull` to this **Object (principal) ID**.
-
-Next: Note down your Container Apps Environment name and the API app Application URL.
+13. In the API Container App **Identity** page, open **User assigned**, click **Add**, select the user-assigned managed identity from Step 2.3, and click **Add**.
+   ![Config identity settings](images/setup-api-container-security.png)
+   > The API container uses this identity to authenticate to PostgreSQL.
 
 ---
 
@@ -397,8 +397,8 @@ Next: Note down your Container Apps Environment name and the API app Application
    - **Image source**: select `Azure Container Registry`
    - **Image and tag**: enter the instructor-provided web image and tag (example: `todomanagement-web:workshop-20260707`)
    - **CPU and memory**: select `0.25 CPU cores, 0.5 Gi memory`
-   - Use system-assigned managed identity for registry authentication. Do not enter registry username/password.
-   - If the Portal asks for registry authentication, select `Managed identity` and `System assigned`.
+   - Use managed identity for registry authentication. Do not enter registry username/password.
+   - If the Portal asks for registry authentication, select `Managed identity` and `System assigned`. This uses the Container Apps Environment system-assigned identity for image pulls.
 
 6. Add these environment variables for the web container:
    Use the internal API URL from Step 2.7 for `API_PROXY_TARGET`.
@@ -422,7 +422,7 @@ Next: Note down your Container Apps Environment name and the API app Application
 11.  After the deployment is complete, click **Go to resource** to navigate to the created app.
 12.  On the **Overview** page, note down the **Application URL** for the web app (example: `https://app-todomanagement-web.politebay-d0fe95ab.japaneast.azurecontainerapps.io`)
 
-Before continuing, open **Identity** for the Web Container App and confirm **System assigned** is `On`. Use the currently signed-in Azure Portal account, which should have Owner on the instructor ACR, to assign `AcrPull` to this **Object (principal) ID**.
+Before continuing, confirm the Container Apps Environment **System assigned** identity is still `On` and has `AcrPull` on the instructor ACR.
 
 Next: Keep the web Application URL for Phase 3 validation.
 
@@ -513,7 +513,7 @@ Your Todo Management application is now deployed on Azure.
 
 - Verify the image name and tag match the values provided by the instructor
 - Verify the registry login server is correct
-- Verify the Container App system-assigned managed identity has `AcrPull` on the instructor ACR
+- Verify the Container Apps Environment system-assigned identity has `AcrPull` on the instructor ACR
 - Check **Revision management** in Container Apps to see whether the latest revision is active and healthy
 
 ### API cannot connect to PostgreSQL
